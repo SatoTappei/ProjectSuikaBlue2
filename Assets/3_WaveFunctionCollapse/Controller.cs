@@ -3,37 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-
 namespace PSB.WaveFunctionCollapse
 {
-    public class Provider : MonoBehaviour
+    public class Controller : MonoBehaviour
     {
         [SerializeField] View _view;
         [SerializeField] int _size = 20;
-        [SerializeField] uint _seed = 0;
+        [Min(1)]
+        [SerializeField] uint _seed = 1;
         [SerializeField] bool _randomSeed;
         [Range(0.016f, 1.0f)]
         [SerializeField] float _stepSpeed = 0.016f;
 
-        Logic _logic;
-
         void Start()
         {
-            Init();
-            StartCoroutine(CollapseMap());
+            Logic logic = InitLogic();
+            StartCoroutine(CollapseMapCoroutine(logic));
         }
 
-        void Init()
+        Logic InitLogic()
         {
-            uint seed = _randomSeed ? (uint)Random.Range(uint.MinValue, uint.MaxValue) : _seed;
-            _logic = new(_size, _size, seed);
+            uint seed = _randomSeed ? (uint)Random.Range(1, uint.MaxValue) : _seed;
+            return new(_size, _size, seed);
         }
 
-        IEnumerator CollapseMap()
+        IEnumerator CollapseMapCoroutine(Logic logic)
         {
             for (int i = 0; i < _size * _size; i++)
             {
-                _view.Create(_logic.Step());
+                _view.Draw(logic.Step());
                 yield return new WaitForSeconds(_stepSpeed);
             }
         }

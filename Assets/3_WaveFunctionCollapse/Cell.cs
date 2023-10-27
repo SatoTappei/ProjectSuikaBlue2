@@ -12,6 +12,7 @@ namespace PSB.WaveFunctionCollapse
         public TileType[] SelectableTiles;
 
         public TileType SelectedTile => SelectableTiles[0];
+        public int SelectableTileCount => SelectableTiles.Length;
 
         public Cell(Vector2Int index, params TileType[] tiles)
         {

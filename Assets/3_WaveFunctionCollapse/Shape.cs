@@ -119,7 +119,8 @@ namespace PSB.WaveFunctionCollapse
             if (type == TileType.DownT) return DownT;
             if (type == TileType.LeftT) return LeftT;
             if (type == TileType.RightT) return RightT;
-            else throw new System.ArgumentException("タイルに対応する形状が無い " + type);
+            
+            throw new System.ArgumentException("タイルに対応する形状が無い " + type);
         }
     }
 }

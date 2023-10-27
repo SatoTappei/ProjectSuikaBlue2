@@ -25,9 +25,9 @@ namespace PSB.WaveFunctionCollapse
             _tiles = _data.ToDictionary(v => v.Tile, v => v.Prefab);
         }
 
-        public void Create(Cell[,] map)
+        public void Draw(Cell[,] map)
         {
-            ClearTileObjectAll();
+            DestroyTileObjectsAll();
 
             for (int i = 0; i < map.GetLength(0); i++)
             {
@@ -41,7 +41,7 @@ namespace PSB.WaveFunctionCollapse
         void CheckCell(Cell cell, int indexY, int indexX)
         {
             // 崩壊済みかつ、念のため選択可能なタイルの長さが1かを調べる
-            if (cell.IsCollapsed && cell.SelectableTiles.Length == 1)
+            if (cell.IsCollapsed && cell.SelectableTileCount == 1)
             {
                 Vector3 pos = new Vector3(indexY * _tileSize, 0, indexX * _tileSize);
                 GameObject tile = CreateTile(cell.SelectedTile, pos);
@@ -54,8 +54,7 @@ namespace PSB.WaveFunctionCollapse
             if (_tiles.TryGetValue(tile, out GameObject prefab))
             {
                 // 回転はプレハブと同じ値を使用する
-                GameObject go = Instantiate(prefab, pos, prefab.transform.rotation);
-                return go;
+                return Instantiate(prefab, pos, prefab.transform.rotation);
             }
             else
             {
@@ -63,7 +62,7 @@ namespace PSB.WaveFunctionCollapse
             }
         }
 
-        void ClearTileObjectAll()
+        void DestroyTileObjectsAll()
         {
             for (int i = _tileObjects.Count - 1; i >= 0; i--)
             {

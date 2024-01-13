@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 namespace PSB.Game
 {
     [System.Serializable]
-    public class ChatGPTMessageModel
+    public class ChatGPTMessageModel2
     {
         public string role;
         public string content;
@@ -29,7 +29,7 @@ namespace PSB.Game
         public class Choice
         {
             public int index;
-            public ChatGPTMessageModel message;
+            public ChatGPTMessageModel2 message;
             public string finish_reason;
         }
 
@@ -47,14 +47,14 @@ namespace PSB.Game
     public class ChatGPTCompletionRequestModel
     {
         public string model;
-        public List<ChatGPTMessageModel> messages;
+        public List<ChatGPTMessageModel2> messages;
     }
 
     public class ChatGPT
     {
         const string ApiKey = "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";
 
-        List<ChatGPTMessageModel> _messages = new();
+        List<ChatGPTMessageModel2> _messages = new();
 
         public ChatGPT()
         {
@@ -75,7 +75,7 @@ namespace PSB.Game
             //文章生成AIのAPIのエンドポイントを設定
             var apiUrl = "https://api.openai.com/v1/chat/completions";
 
-            _messages.Add(new ChatGPTMessageModel { role = "user", content = userMessage });
+            _messages.Add(new ChatGPTMessageModel2 { role = "user", content = userMessage });
 
             //OpenAIのAPIリクエストに必要なヘッダー情報を設定
             var headers = new Dictionary<string, string>

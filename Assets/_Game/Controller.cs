@@ -36,7 +36,7 @@ namespace PSB.Game
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
         {
-            ChatGPT chatGPTConnection = new();
+            OpenApiRequest api = new("語尾に「ゆ」を付けてください。");
             while (!token.IsCancellationRequested)
             {
                 // 入力待ち
@@ -50,9 +50,9 @@ namespace PSB.Game
                 AddLog(input, "あなた: ");
 
                 // ChatGPTにリクエスト
-                ChatGPTResponseModel v = await chatGPTConnection.RequestAsync(input);
+                ApiResponseMessage v = await api.RequestAsync(input);
                 string line = v.choices[0].message.content;
-
+                Debug.Log(line);
                 AddLog(line, "めいど: ");
 
                 // 表情変える

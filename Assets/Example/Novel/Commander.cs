@@ -13,36 +13,67 @@ namespace PSB.Novel
         [SerializeField] Character _rightCharacter;
 
         /// <summary>
+        /// シーン開始前もしくは終了時にコマンドでイベントする各UIを初期化
+        /// </summary>
+        public void ResetAll()
+        {
+            _centerCharacter.Init();
+            _leftCharacter.Init();
+            _rightCharacter.Init();
+        }
+
+        /// <summary>
         /// コマンドを実行するイベントに変換
         /// </summary>
         public async UniTask RunAsync(string[] commands, CancellationToken skipToken)
         {
-            List<List<UniTask>> tasks = new List<List<UniTask>>();
-            tasks.Add(new List<UniTask>()); // 現状、並列でのイベント実行しか対応していない
-
-            foreach (string c in commands)
+            List<Queue<UniTask>> tasks = new();
+            for (int i = 0; i < commands.Length; i++)
             {
-                string[] split = c.Split();
+                string[] split = commands[i].Split();
 
-                // 先頭に+が付いていた場合はシーケンシャルに実行される
-                if (split[0][0] == '+')
+                // 前のイベントに続けて実行されるかチェック
+                bool isAppend = split[0][0] == '+';
+                if (isAppend) split[0] = split[0].Substring(1);
+
+                // 先頭のコマンドもしくは並列で実行されるイベントの場合は新たにキューを追加
+                if (i == 0 || !isAppend) tasks.Add(new());
+
+                // 続けて実行される場合は前のイベントのキューに、
+                // 並列で実行する場合は新たに追加されたキューにイベントを追加
+                AddEvent(tasks[^1], split, skipToken);
+            }
+
+            // 並列で実行されるキューから1つずつ取り出して実行を繰り返す
+            while (true)
+            {
+                // 全てのキューが空かをチェック
+                bool isEmpty = true;
+                List<UniTask> temp = new();
+                foreach (Queue<UniTask> q in tasks)
                 {
-                    split[0] = split[0].Substring(1);
-                    // シーケンシャルにする魔法
+                    if (q.Count == 0) continue;
+                    
+                    temp.Add(q.Dequeue());
+                    isEmpty = false;
                 }
 
-                if (split[0] == "キャラ表示") tasks[0].Add(ShowCharacterAsync(split, skipToken));
-                else if (split[0] == "キャラ消去") tasks[0].Add(HideCharacterAsync(split, skipToken));
-                else if (split[0] == "キャラ上げ") tasks[0].Add(CharacterMoveToFrontAsync(split, skipToken));
-                else if (split[0] == "キャラ下げ") tasks[0].Add(CharacterMoveToBackAsync(split, skipToken));
-                else if (split[0] == "キャラジャンプ") tasks[0].Add(CharacterJumpAsync(split, skipToken));
-                else Debug.LogWarning("対応するイベントが無い: " + split[0]);
-            }
+                if (isEmpty) break;
 
-            foreach (List<UniTask> parallel in tasks)
-            {
-                await parallel;
+                // 並列で実行されるイベントが全て終わるまで待つ
+                await temp;
             }
+        }
+
+        // コマンドに対応したイベントをキューに追加
+        void AddEvent(Queue<UniTask> q, string[] command, CancellationToken skipToken)
+        {
+            if (command[0] == "キャラ表示") q.Enqueue(ShowCharacterAsync(command, skipToken));
+            else if (command[0] == "キャラ消去") q.Enqueue(HideCharacterAsync(command, skipToken));
+            else if (command[0] == "キャラ上げ") q.Enqueue(CharacterMoveToFrontAsync(command, skipToken));
+            else if (command[0] == "キャラ下げ") q.Enqueue(CharacterMoveToBackAsync(command, skipToken));
+            else if (command[0] == "キャラジャンプ") q.Enqueue(CharacterJumpAsync(command, skipToken));
+            else Debug.LogWarning("対応するイベントが無い: " + command[0]);
         }
 
         // キャラ表示

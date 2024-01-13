@@ -25,8 +25,11 @@ namespace PSB.Novel
         [System.Serializable]
         class SpriteData
         {
-            [field: SerializeField] public CharacterType Type { get; private set; }
-            [field: SerializeField] public Sprite Sprite { get; private set; }
+            [SerializeField] CharacterType _type;
+            [SerializeField] Sprite _sprite;
+
+            public CharacterType Type => _type;
+            public Sprite Sprite => _sprite;
         }
 
         [SerializeField] SpriteData[] _spriteData;
@@ -44,7 +47,10 @@ namespace PSB.Novel
             Init();
         }
 
-        void Init()
+        /// <summary>
+        /// シーン開始時、各種コマンドを実行する前に初期化する必要がある
+        /// </summary>
+        public void Init()
         {
             _sprites = _spriteData.ToDictionary(d => d.Type, d => d.Sprite);
             _image1.sprite = null;

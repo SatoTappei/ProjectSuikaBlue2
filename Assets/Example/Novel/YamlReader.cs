@@ -23,17 +23,15 @@ namespace PSB.Novel
         public string Name;
         public string Line;
     }
-
+    
     public static class YamlReader
     {
-        const string Path = "Assets/Example/Novel/Scene_Sample.yaml";
-
         /// <summary>
         /// YAMLを読み込んでデシリアライズ
         /// </summary>
-        public static SceneFlow Deserialize()
+        public static SceneFlow Deserialize(string address)
         {
-            StreamReader sr = new(Path, System.Text.Encoding.UTF8);
+            StreamReader sr = new(address, System.Text.Encoding.UTF8);
             IDeserializer d = new DeserializerBuilder().Build();
             SceneFlow sf = d.Deserialize<SceneFlow>(sr);
 

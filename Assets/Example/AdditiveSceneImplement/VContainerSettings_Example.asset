@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9cf4d8df1d704d5689f3c69bd70d1cb9, type: 3}
-  m_Name: VContainerSettings
+  m_Name: VContainerSettings_Example
   m_EditorClassIdentifier: 
   RootLifetimeScope: {fileID: 8037785834758031660, guid: 0efe3be098b880943b25b91d989116a8,
     type: 3}

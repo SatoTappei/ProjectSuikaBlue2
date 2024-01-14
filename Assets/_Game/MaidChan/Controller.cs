@@ -10,6 +10,7 @@ namespace PSB.Game
 {
     public class Controller : MonoBehaviour
     {
+        [SerializeField] TextAsset _textAsset;
         [SerializeField] InputField _inputField;
         [SerializeField] Text _lineText;
         [SerializeField] Text _logText;
@@ -36,7 +37,7 @@ namespace PSB.Game
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
         {
-            OpenApiRequest api = new("語尾に「ゆ」を付けてください。");
+            OpenApiRequest api = new(_textAsset.ToString());
             while (!token.IsCancellationRequested)
             {
                 // 入力待ち

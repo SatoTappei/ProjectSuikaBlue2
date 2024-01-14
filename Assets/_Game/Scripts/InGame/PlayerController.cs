@@ -5,11 +5,8 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UniRx;
 using UniRx.Triggers;
-
-public struct PlayerControlMessage
-{
-    public KeyCode Key;
-}
+using VContainer;
+using VContainer.Unity;
 
 /// <summary>
 /// Rotationの値が(0,0,0)の時のForwardを北とした東西南北
@@ -27,14 +24,22 @@ namespace PSB.Game
     public class PlayerController : MonoBehaviour
     {
         [SerializeField] Rigidbody _rigidbody;
+        [Header("視界のレイキャストの始点")]
         [SerializeField] Transform _eye;
+        [Header("向いている方向の基準")]
+        [SerializeField] Transform _body;
 
-        public bool OnFloorBorder { get; private set; }
-        public PlayerForward Forward { get; private set; }
+        GameState _gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            _gameState = gameState;
+        }
 
         void Start()
         {
-            UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
+            //UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
@@ -47,12 +52,12 @@ namespace PSB.Game
 
                 // 入力
                 Vector2Int input = default;
-                if (msg.Key == KeyCode.A) { input.x--; Forward = PlayerForward.West; }
-                if (msg.Key == KeyCode.S) { input.y--; Forward = PlayerForward.South; }
-                if (msg.Key == KeyCode.D) { input.x++; Forward = PlayerForward.East; }
-                if (msg.Key == KeyCode.W) { input.y++; Forward = PlayerForward.North; }
+                //if (msg.Key == KeyCode.A) { input.x--; Forward = PlayerForward.West; }
+                //if (msg.Key == KeyCode.S) { input.y--; Forward = PlayerForward.South; }
+                //if (msg.Key == KeyCode.D) { input.x++; Forward = PlayerForward.East; }
+                //if (msg.Key == KeyCode.W) { input.y++; Forward = PlayerForward.North; }
                 // 入力あるまでこんてぬ
-                if (input == Vector2Int.zero) { await UniTask.Yield(token); continue; }
+                if (input == default) { await UniTask.Yield(token); continue; }
 
                 // 入力に応じて1回移動
                 transform.forward = new Vector3(input.x, 0, input.y);
@@ -64,7 +69,7 @@ namespace PSB.Game
                 _rigidbody.velocity = Vector3.zero;
 
                 // レイキャストでステージの縁に立っているか判定
-                OnFloorBorder = Physics.Raycast(_eye.transform.position, _eye.forward + Vector3.down, 1);
+                //OnFloorBorder = Physics.Raycast(_eye.transform.position, _eye.forward + Vector3.down, 1);
 
                 await UniTask.Yield(token);
             }

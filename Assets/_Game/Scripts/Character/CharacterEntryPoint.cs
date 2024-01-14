@@ -14,7 +14,7 @@ namespace PSB.Game
     public class CharacterEntryPoint : MonoBehaviour
     {
         [SerializeField] TextAsset _gameRule;
-        [SerializeField] PlayerController _player;
+        [SerializeField] Player _player;
 
         GameState _gameState;
 

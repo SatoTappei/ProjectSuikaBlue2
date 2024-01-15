@@ -14,7 +14,9 @@ namespace PSB.Game
     public class CharacterEntryPoint : MonoBehaviour
     {
         [SerializeField] TextAsset _gameRule;
-        [SerializeField] Player _player;
+        [SerializeField] TextAsset _character;
+        [Header("OpenAPIへのリクエスト設定")]
+        [SerializeField] float _requestInterval = 2.0f;
 
         GameState _gameState;
 
@@ -26,15 +28,24 @@ namespace PSB.Game
 
         void Start()
         {
-            //UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
-            //Debug.Log(_gameRule.ToString());
-
-            Debug.Log("ちゃらくた:" + _gameState);
+            UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
         {
-            //OpenApiRequest api = new(_gameRule.ToString());
+            OpenApiRequest gameRuleApi = new(_gameRule.ToString());
+            OpenApiRequest characterApi = new(_character.ToString());
+            while (!token.IsCancellationRequested)
+            {
+                string request = Translator.Translate(_gameState);
+                ApiResponseMessage response = await gameRuleApi.RequestAsync(request);
+                string command = response.choices[0].message.content;
+                InputMessenger.SendMessage(command);
+                Debug.Log(command);
+                // プレイヤーが行動中かどうかに関わらず一定間隔でリクエストしている
+                await UniTask.WaitForSeconds(_requestInterval, cancellationToken: token);
+            }
+
             //while (!token.IsCancellationRequested)
             //{
             //    string request = string.Empty;

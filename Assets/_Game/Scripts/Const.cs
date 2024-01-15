@@ -2,8 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class Const
+namespace PSB.Game
 {
-    public const string InGameSceneName = "InGame";
-    public const string CharacterSceneName = "Character";
+    public static class Const
+    {
+        public const string InGameSceneName = "InGame";
+        public const string CharacterSceneName = "Character";
+
+        const string FootingLayerName = "Footing";
+        const string HoleRangeLayerName = "HoleRange";
+        const string StageBorderLayerName = "StageBorder";
+
+        /// <summary>
+        /// 接地するとプレイヤーが再度ジャンプ可能になるレイヤー
+        /// </summary>
+        public static int FootingLayer => 1 << LayerMask.NameToLayer(FootingLayerName);
+        /// <summary>
+        /// 穴の判定のレイヤー
+        /// </summary>
+        public static int HoleRangeLayer => 1 << LayerMask.NameToLayer(HoleRangeLayerName);
+        /// <summary>
+        /// ステージの端を判定するレイヤー
+        /// </summary>
+        public static int StageBorderLayer => 1 << LayerMask.NameToLayer(StageBorderLayerName);
+    }
 }

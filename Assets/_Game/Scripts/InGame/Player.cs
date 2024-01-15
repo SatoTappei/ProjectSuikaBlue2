@@ -12,20 +12,37 @@ namespace PSB.Game
 {
     public class Player : MonoBehaviour
     {
-        public enum Forward { East, West, South, North, }
+        public enum Forward { Left, Right }
 
         [SerializeField] Rigidbody _rigidbody;
         [Header("視界のレイキャストの始点")]
         [SerializeField] Transform _eye;
         [Header("向いている方向の基準")]
         [SerializeField] Transform _body;
+        [Header("接地判定用のレイキャストの設定")]
+        [SerializeField] float _groundingRadius = 0.5f;
+        [SerializeField] float _groundingHeight = 0.1f;
+        [SerializeField] Vector3 _groundingOffset;
+        [Header("ジャンプの設定")]
+        [SerializeField] float _jumpInterval = 0.5f;
+        [SerializeField] float _verticalJumpPower = 5.0f;
+        [SerializeField] float _horizontalJumpPowr = 3.0f;
+        [Header("周囲判定用のレイキャストの設定")]
+        [SerializeField] float _stageBorderRaycastLength = 1.0f;
+        [SerializeField] float _holeFrontRaycastLength = 1.0f;
 
         GameState _gameState;
+        Transform _transform;
 
         [Inject]
         void Construct(GameState gameState)
         {
             _gameState = gameState;
+        }
+
+        void Awake()
+        {
+            _transform = transform;
         }
 
         void Start()
@@ -41,56 +58,140 @@ namespace PSB.Game
                 PlayerControlMessage msg = await MessageBroker.Default
                     .Receive<PlayerControlMessage>().ToUniTask(useFirstValue: true, token);
 
-                Debug.Log("きたー");
+                Debug.Log("めっせきた:");
 
-                // 入力
+                // どの移動キーが入力されたか
                 Vector2Int input = default;
-                if (msg.InputKeys.Contains(KeyCode.A)) { input.x--; }
-                if (msg.InputKeys.Contains(KeyCode.S)) { input.y--; }
-                if (msg.InputKeys.Contains(KeyCode.D)) { input.x++; }
-                if (msg.InputKeys.Contains(KeyCode.W)) { input.y++; }
-                // 入力あるまでこんてぬ
-                if (input == default) { await UniTask.Yield(token); continue; }
+                if (msg.KeyDownA) { input.x--; }
+                if (msg.KeyDownD) { input.x++; }
 
-                // ジャンプキーが入力されていた場合はその方向にジャンプ
-                // 入力されていない場合はその方向に移動
-                if (msg.InputKeys.Contains(KeyCode.Space)) { await JumpAsync(input); }
+                Rotation(input);
+
+                // ジャンプ or 移動
+                if (msg.KeyDownSpace) { await JumpAsync(input, token); }
                 else { await MoveAsync(input, token); }
 
-
-
-                // レイキャストでステージの縁に立っているか判定
-                //OnFloorBorder = Physics.Raycast(_eye.transform.position, _eye.forward + Vector3.down, 1);
+                Idle();
+                CheckSurroundings();
 
                 await UniTask.Yield(token);
             }
         }
 
-        // 方向に飛ぶ
-        async UniTask JumpAsync(Vector2Int input)
+        // 方向に向く
+        void Rotation(Vector2Int input)
         {
-            _rigidbody.AddForce(Vector3.up + new Vector3(input.x, 0, 0), ForceMode.Impulse);
+            _body.forward = new Vector3(input.x, 0, input.y);
+
+            if (input == Vector2Int.left) _gameState.Forward = Forward.Left;
+            else if (input == Vector2Int.right) _gameState.Forward = Forward.Right;
+        }
+
+        // 方向に飛ぶ
+        async UniTask JumpAsync(Vector2Int input, CancellationToken token)
+        {
+            Vector3 force = Vector3.up * _verticalJumpPower + Vector3.right * input.x * _horizontalJumpPowr;
+            _rigidbody.AddForce(force, ForceMode.Impulse);
+
+            // ジャンプと同時に接地判定するとレイキャストがまだ接地している可能性がある
+            await UniTask.WaitForSeconds(_jumpInterval, cancellationToken: token); 
+            await UniTask.WaitUntil(IsGrounding, cancellationToken: token);
+        }
+
+        // 接地判定
+        bool IsGrounding()
+        {
+            // Z軸方向には動かないので2箇所判定すれば大丈夫
+            return Linecast(Vector3.left * _groundingRadius) ||
+                   Linecast(Vector3.right * _groundingRadius);
+
+            // 中心位置から引数だけずらした位置に縦方向の線キャスト
+            bool Linecast(Vector3 side)
+            {
+                Vector3 center = _transform.position + side + _groundingOffset;
+                Vector3 halfHeight = _transform.up * (_groundingHeight / 2);
+                Physics.Linecast(center + halfHeight, center - halfHeight, out RaycastHit hit, Const.FootingLayer);
+                return hit.collider != null;
+            }
         }
 
         // 1秒間移動
         async UniTask MoveAsync(Vector2Int input, CancellationToken token)
         {
-            transform.forward = new Vector3(input.x, 0, input.y);
+            _body.forward = new Vector3(input.x, 0, input.y);
             for (int i = 0; i <= 60; i++)
             {
-                _rigidbody.velocity = new Vector3(input.x, 0, input.y);
+                _rigidbody.velocity = new Vector3(input.x, _rigidbody.velocity.y, input.y);
                 await UniTask.Yield(PlayerLoopTiming.FixedUpdate, token);
             }
-            _rigidbody.velocity = Vector3.zero;
+        }
+
+        // 左右移動の速度を0にする
+        void Idle()
+        {
+            _rigidbody.velocity = new Vector3(0, _rigidbody.velocity.y, 0);
+        }
+
+        // 周囲の状況を調べる
+        void CheckSurroundings()
+        {
+            Vector3 eye = _eye.transform.position;
+            // ステージの縁に立っているか判定
+            _gameState.OnStageBorder = Physics.Raycast(eye, _eye.forward, 
+                _stageBorderRaycastLength, Const.StageBorderLayer);
+            // 穴の手前に立っているか判定
+            _gameState.OnHoleFront = Physics.Raycast(eye, _eye.forward + Vector3.down, 
+                _holeFrontRaycastLength, Const.HoleRangeLayer);
+
+            //Debug.Log("ステージ端:" + _gameState.OnStageBorder + " 穴手前:" + _gameState.OnHoleFront);
+        }
+
+        /// <summary>
+        /// 強制的に移動させる
+        /// </summary>
+        public void Teleport(Vector3 position)
+        {
+            _transform.position = position;
         }
 
         void OnDrawGizmos()
         {
-            if (_eye != null)
+            DrawGroundingLinecast();
+            DrawStageBorderRaycast();
+            DrawHoleFrontRaycast();
+        }
+
+        // 接地判定をギズモに描画
+        void DrawGroundingLinecast()
+        {
+            if (_transform == null) return;
+
+            Line(Vector3.left * _groundingRadius);
+            Line(Vector3.right * _groundingRadius);
+
+            void Line(Vector3 side)
             {
-                Vector3 ray = _eye.forward + Vector3.down;
-                Gizmos.DrawRay(_eye.transform.position, ray);
+                Vector3 center = _transform.position + side + _groundingOffset;
+                Vector3 halfHeight = _transform.up * (_groundingHeight / 2);
+                Gizmos.DrawLine(center + halfHeight, center - halfHeight);
             }
+        }
+
+        // ステージ端判定のレイキャストをギズモに描画
+        void DrawStageBorderRaycast()
+        {
+            if (_eye == null) return;
+
+            Gizmos.DrawRay(_eye.position, _eye.forward * _stageBorderRaycastLength);
+        }
+
+        // 手前に穴がある判定のレイキャストをギズモに描画
+        void DrawHoleFrontRaycast()
+        {
+            if (_eye == null) return;
+
+            Vector3 dir = (_eye.forward + Vector3.down).normalized;
+            Gizmos.DrawRay(_eye.position, dir * _stageBorderRaycastLength);
         }
     }
 }

@@ -9,6 +9,10 @@ namespace PSB.Game
     /// </summary>
     public struct PlayerControlMessage
     {
-        public List<KeyCode> InputKeys;
+        public bool KeyDownA;
+        public bool KeyDownS;
+        public bool KeyDownD;
+        public bool KeyDownW;
+        public bool KeyDownSpace;
     }
 }

@@ -1508,8 +1508,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a36177861a178f408292521f6a25780, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gameRule: {fileID: 0}
-  _player: {fileID: 0}
+  _gameRule: {fileID: 4900000, guid: b07073a72003c0947b91e1301c4ce193, type: 3}
+  _character: {fileID: 4900000, guid: 8172178744dfafe4ab0bd66722476ad3, type: 3}
+  _requestInterval: 2
 --- !u!1 &1978670017
 GameObject:
   m_ObjectHideFlags: 0

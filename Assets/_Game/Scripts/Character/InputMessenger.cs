@@ -11,12 +11,18 @@ namespace PSB.Game
         /// <summary>
         /// 文字列を解析してインゲームへの入力となるメッセージを送信する
         /// </summary>
-        public static void SendMessage(string command)
+        public static void SendMessage(IReadOnlyGameState gameState, string command)
         {
             PlayerControlMessage msg = new PlayerControlMessage();
             if (command == "1") msg.KeyDownA = true;
             if (command == "2") msg.KeyDownD = true;
-            if (command == "3") msg.KeyDownSpace = true;
+            if (command == "3")
+            {
+                if (gameState.Forward == Player.Forward.Left) msg.KeyDownA = true;
+                else if (gameState.Forward == Player.Forward.Right) msg.KeyDownD = true;
+
+                msg.KeyDownSpace = true;
+            }
 
             MessageBroker.Default.Publish(msg);
         }

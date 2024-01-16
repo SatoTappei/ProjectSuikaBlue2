@@ -9,6 +9,7 @@ namespace PSB.Game
         public Player.Forward Forward { get; }
         public bool OnStageBorder { get; }
         public bool OnHoleFront { get; }
+        public bool OnStepFront { get; }
         public Direction GoalDirection { get; }
     }
 }

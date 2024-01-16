@@ -9,7 +9,7 @@ namespace PSB.Game
         /// <summary>
         /// 現在のゲームの状態からAPIにリクエストするメッセージを生成
         /// </summary>
-        public static string Translate(GameState gameState)
+        public static string Translate(IReadOnlyGameState gameState)
         {
             string request = string.Empty;
             if (gameState.OnStageBorder) request += "これ以上進むとステージから落ちてしまうかもしれません。";
@@ -20,6 +20,8 @@ namespace PSB.Game
                   gameState.OnStepFront)) request += "直進できる道が続いています。";
 
             request += "あなたはどの方向に進みますか？";
+
+            Debug.Log(request);
 
             return request;
         }

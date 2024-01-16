@@ -17,6 +17,8 @@ namespace PSB.Game
         [SerializeField] Rigidbody _rigidbody;
         [Header("視界のレイキャストの始点")]
         [SerializeField] Transform _eye;
+        [Header("段差判定のレイキャストの始点")]
+        [SerializeField] Transform _kness;
         [Header("向いている方向の基準")]
         [SerializeField] Transform _body;
         [Header("接地判定用のレイキャストの設定")]
@@ -30,6 +32,7 @@ namespace PSB.Game
         [Header("周囲判定用のレイキャストの設定")]
         [SerializeField] float _stageBorderRaycastLength = 1.0f;
         [SerializeField] float _holeFrontRaycastLength = 1.0f;
+        [SerializeField] float _stepFrontRaycastLength = 2.0f;
 
         GameState _gameState;
         Transform _transform;
@@ -57,8 +60,6 @@ namespace PSB.Game
                 // メッセージが飛んでくるまで待機
                 PlayerControlMessage msg = await MessageBroker.Default
                     .Receive<PlayerControlMessage>().ToUniTask(useFirstValue: true, token);
-
-                Debug.Log("めっせきた:");
 
                 // どの移動キーが入力されたか
                 Vector2Int input = default;
@@ -93,8 +94,16 @@ namespace PSB.Game
             Vector3 force = Vector3.up * _verticalJumpPower + Vector3.right * input.x * _horizontalJumpPowr;
             _rigidbody.AddForce(force, ForceMode.Impulse);
 
-            // ジャンプと同時に接地判定するとレイキャストがまだ接地している可能性がある
-            await UniTask.WaitForSeconds(_jumpInterval, cancellationToken: token); 
+            // ジャンプ中に横方向に力を加え続けることで、段差に引っかかっても乗り越えることが出来る。
+            for (float f = 0; f < _jumpInterval; f += Time.fixedDeltaTime)
+            {
+                Vector3 velo = _rigidbody.velocity;
+                velo.x = input.x * _horizontalJumpPowr;
+                _rigidbody.velocity = velo;
+                // ジャンプした次のフレームではレイキャストが地面から離れないので、判定までのクールタイムを設ける。
+                await UniTask.Yield(PlayerLoopTiming.FixedUpdate, cancellationToken: token);
+            }
+ 
             await UniTask.WaitUntil(IsGrounding, cancellationToken: token);
         }
 
@@ -135,15 +144,17 @@ namespace PSB.Game
         // 周囲の状況を調べる
         void CheckSurroundings()
         {
-            Vector3 eye = _eye.transform.position;
             // ステージの縁に立っているか判定
-            _gameState.OnStageBorder = Physics.Raycast(eye, _eye.forward, 
+            _gameState.OnStageBorder = Physics.Raycast(_eye.position, _eye.forward, 
                 _stageBorderRaycastLength, Const.StageBorderLayer);
             // 穴の手前に立っているか判定
-            _gameState.OnHoleFront = Physics.Raycast(eye, _eye.forward + Vector3.down, 
+            _gameState.OnHoleFront = Physics.Raycast(_eye.position, _eye.forward + Vector3.down, 
                 _holeFrontRaycastLength, Const.HoleRangeLayer);
+            // 目の前に段差があるか判定
+            _gameState.OnStepFront = Physics.Raycast(_kness.position, _eye.forward,
+                _stepFrontRaycastLength, Const.FootingLayer);
 
-            //Debug.Log("ステージ端:" + _gameState.OnStageBorder + " 穴手前:" + _gameState.OnHoleFront);
+            Debug.Log("ステージの端:" + _gameState.OnStageBorder);
         }
 
         /// <summary>
@@ -159,6 +170,7 @@ namespace PSB.Game
             DrawGroundingLinecast();
             DrawStageBorderRaycast();
             DrawHoleFrontRaycast();
+            DrawStepFrontRaycast();
         }
 
         // 接地判定をギズモに描画
@@ -192,6 +204,14 @@ namespace PSB.Game
 
             Vector3 dir = (_eye.forward + Vector3.down).normalized;
             Gizmos.DrawRay(_eye.position, dir * _stageBorderRaycastLength);
+        }
+
+        // 段差判定のレイキャストをギズモに描画
+        void DrawStepFrontRaycast()
+        {
+            if (_kness == null) return;
+
+            Gizmos.DrawRay(_kness.position, _kness.forward * _stepFrontRaycastLength);
         }
     }
 }

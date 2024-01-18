@@ -6,7 +6,13 @@ namespace PSB.Game
 {
     public static class Const
     {
+        /// <summary>
+        /// インゲームのシーン名
+        /// </summary>
         public const string InGameSceneName = "InGame";
+        /// <summary>
+        /// キャラクターとの会話シーン名
+        /// </summary>
         public const string CharacterSceneName = "Character";
 
         const string FootingLayerName = "Footing";

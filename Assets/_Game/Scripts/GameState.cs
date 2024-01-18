@@ -9,12 +9,25 @@ namespace PSB.Game
     /// </summary>
     public class GameState : IReadOnlyGameState
     {
-        // プレイヤーの状態
+        /// <summary>
+        /// プレイヤーの前方
+        /// </summary>
         public Player.Forward Forward { get; set; }
+        /// <summary>
+        /// ステージの端に立っているかを判定
+        /// </summary>
         public bool OnStageBorder { get; set; }
+        /// <summary>
+        /// 目の前に飛び越えられる穴があるかを判定
+        /// </summary>
         public bool OnHoleFront { get; set; }
+        /// <summary>
+        /// 目の前に飛び越えられる段差があるかを判定
+        /// </summary>
         public bool OnStepFront { get; set; }
-        // ロジックの状態
+        /// <summary>
+        /// プレイヤーから見たゴールの方角
+        /// </summary>
         public Direction GoalDirection { get; set; }
     }
 }

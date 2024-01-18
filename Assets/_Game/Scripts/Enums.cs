@@ -15,4 +15,12 @@ namespace PSB.Game
         LowerLeft,
         LowerRight
     }
+
+    public enum AudioKey
+    {
+        PlayerSendSE, // プレイヤーが送信した
+        CharacterSendSE, // キャラクターが送信した
+        TabOpenCloseSE, // チャットウィンドウの開閉
+        CharacterTouchSE, // キャラクターをタッチした
+    }
 }

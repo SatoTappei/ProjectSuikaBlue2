@@ -1,9 +1,13 @@
 using VContainer;
 using VContainer.Unity;
 
-public class CharacterLifetimeScope : LifetimeScope
+namespace PSB.Game
 {
-    protected override void Configure(IContainerBuilder builder)
+    public class CharacterLifetimeScope : LifetimeScope
     {
+        protected override void Configure(IContainerBuilder builder)
+        {
+            builder.Register<TalkState>(Lifetime.Singleton);
+        }
     }
 }

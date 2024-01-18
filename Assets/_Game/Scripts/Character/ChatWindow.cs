@@ -4,32 +4,59 @@ using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using VContainer;
+using UniRx;
+using UniRx.Triggers;
+using System.Text;
 
 namespace PSB.Game
 {
     public class ChatWindow : MonoBehaviour
     {
+        [Header("キャラクターとの会話")]
+        [SerializeField] InputField _inputField;
+        [SerializeField] Button _enterButton;
+        [SerializeField] Text _logText;
+        [SerializeField] string _logHeader = "あなた: ";
         [Header("チャット画面の開閉")]
         [SerializeField] Button _switchButton;
         [SerializeField] Transform _window;
         [SerializeField] float _closedWidth = -429.0f;
         [SerializeField] float _OpenedWidth = 19.0f;
         [SerializeField] float _animationSpeed = 1.0f;
+        [Header("開く閉じるボタンの文字を変える")]
         [SerializeField] string _closedLetter = ">";
         [SerializeField] string _opendLetter = "<";
 
+        StringBuilder _builder = new();
+        TalkState _talkState;
         CancellationToken _token;
         bool _isOpened;
+
+        [Inject]
+        void Construct(TalkState talkState)
+        {
+            _talkState = talkState;
+        }
 
         void Awake()
         {
             _token = this.GetCancellationTokenOnDestroy();
+            // 会話履歴が更新されたタイミングでテキストを更新
+            _talkState.AddLogObservable.Subscribe(_ => UpdateTalkHistory()).AddTo(this);
+            // 送信ボタンを押したもしくはEnterキーを押したら入力を決定
+            this.UpdateAsObservable()
+                .Where(_ => _isOpened)
+                .Where(_ => Input.GetKeyDown(KeyCode.Return))
+                .Subscribe(_ => SubmitInput());
+            _enterButton.onClick.AddListener(SubmitInput);
         }
 
         void Start()
         {
             StateChange(_closedWidth, 0, _closedLetter);
             _switchButton.onClick.AddListener(Switch);
+            _logText.text = "";
         }
 
         // チャット画面の開閉
@@ -38,6 +65,7 @@ namespace PSB.Game
             if (_isOpened) StateChange(_closedWidth, _animationSpeed, _closedLetter);
             else StateChange(_OpenedWidth, _animationSpeed, _opendLetter);
 
+            AudioPlayer.Play(AudioKey.TabOpenCloseSE, AudioPlayer.PlayMode.SE);
             _isOpened = !_isOpened;
         }
 
@@ -63,6 +91,30 @@ namespace PSB.Game
             }
             _window.localPosition = b;
             _switchButton.interactable = true;
+        }
+
+        // 会話履歴を更新
+        void UpdateTalkHistory()
+        {
+            _builder.Clear();
+            foreach (string s in _talkState.Log)
+            {
+                _builder.AppendLine(s);
+            }
+
+            _logText.text = _builder.ToString();
+        }
+
+        // 入力を決定
+        void SubmitInput()
+        {
+            AudioPlayer.Play(AudioKey.PlayerSendSE, AudioPlayer.PlayMode.SE);
+
+            if (_inputField.text == "") return;
+
+            _talkState.AddPlayerSend(_inputField.text);
+            _talkState.AddLog(_logHeader, _inputField.text);
+            _inputField.text = "";
         }
     }
 }

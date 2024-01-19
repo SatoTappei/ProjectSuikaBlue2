@@ -65,7 +65,7 @@ namespace PSB.Game
             });
         }
 
-        public async UniTask<ApiResponseMessage> RequestAsync(string message)
+        public async UniTask<string> RequestAsync(string message)
         {
             // リクエストをJSO形式の文字列に変換
             _messages.Add(new ApiRequestMessage { role = "user", content = message });
@@ -107,7 +107,7 @@ namespace PSB.Game
             {
                 ApiResponseMessage response = JsonUtility.FromJson<ApiResponseMessage>(request.downloadHandler.text);
                 _messages.Add(response.choices[0].message);
-                return response;
+                return response.choices[0].message.content;
             }
         }
     }

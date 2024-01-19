@@ -51,10 +51,8 @@ namespace PSB.Game
                 AddLog(input, "あなた: ");
 
                 // ChatGPTにリクエスト
-                ApiResponseMessage v = await api.RequestAsync(input);
-                string line = v.choices[0].message.content;
-                Debug.Log(line);
-                AddLog(line, "めいど: ");
+                string response = await api.RequestAsync(input);
+                AddLog(response, "めいど: ");
 
                 // 表情変える
                 bool isSmile = Random.value <= 0.5f;
@@ -62,7 +60,7 @@ namespace PSB.Game
                 _face2.SetActive(isSmile);
 
                 // 台詞として表示
-                await PrintAsync(line, token);
+                await PrintAsync(response, token);
                 await UniTask.Yield();
             }
         }

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74dcb4b36aea08943bcefe837bab1ad5, type: 3}
   m_Name: CharacterSettings_MaidChan
   m_EditorClassIdentifier: 
-  _characterName: "\u3081\u3044\u3069"
+  _characterName: "\u3081\u3044\u3069\u3061\u3083\u3093"
   _defaultMental: 100

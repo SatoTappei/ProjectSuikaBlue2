@@ -43,53 +43,53 @@ namespace PSB.Game
                 string playerSend = _talkState.GetPlayerSend();
                 // キャラクターの台詞はUIに表示するだけなので待つ必要なし
                 CharacterTalkAsync(playerSend, characterAi, token).Forget();
-                ContextJudgeAsync(playerSend, contextJudgeAi, token).Forget();
-                await NextActionAsync(gameRuleAi, token);
-
-                // プレイヤーが行動中かどうかに関わらず一定間隔でリクエストしている
+                // プレイヤーの入力を判定してインゲーム内の操作を決める
+                await ContextJudgeAsync(playerSend, contextJudgeAi, gameRuleAi, token);
+                // インゲーム内のキャラクターが行動中かどうかに関わらず一定間隔でリクエストしている
                 await UniTask.WaitForSeconds(_requestInterval, cancellationToken: token);
             }
         }
 
         // プレイヤーの入力に反応したキャラクターの台詞
-        async UniTask CharacterTalkAsync(string playerSend, OpenAiRequest api, CancellationToken token)
+        async UniTask CharacterTalkAsync(string playerSend, OpenAiRequest character, CancellationToken token)
         {
             if (playerSend == "") return;
 
-            ApiResponseMessage response = await api.RequestAsync(playerSend);
-            string line = response.choices[0].message.content;
-
-            _talkState.SetCharacterLine(line);
-            _talkState.AddLog(_talkState.Settings.LogHeader, line);
+            string response = await character.RequestAsync(playerSend);
+            // キャラクターの台詞としてセット 会話履歴に追加
+            _talkState.SetCharacterLine(response);
+            _talkState.AddLog(_talkState.Settings.LogHeader, response);
 
             AudioPlayer.Play(AudioKey.CharacterSendSE, AudioPlayer.PlayMode.SE);
         }
 
-        // プレイヤーの入力の文脈を判定
-        async UniTask ContextJudgeAsync(string playerSend, OpenAiRequest api, CancellationToken token)
+        // プレイヤーの入力の文脈を判定して次の行動を決める
+        async UniTask ContextJudgeAsync(string playerSend, OpenAiRequest contextJudge, OpenAiRequest gameRule, CancellationToken token)
         {
             if (playerSend == "") return;
 
-            ApiResponseMessage response = await api.RequestAsync(playerSend);
-            string line = response.choices[0].message.content;
+            string response = await contextJudge.RequestAsync(playerSend);
+            // 心情を変更
+            if (int.TryParse(response, out int result)) _talkState.Mental += result;
+            // 指示(-1)と判断された場合はプレイヤーの指示に従う
+            if (result == -1) await PlayerFollowAsync(response, gameRule, token);
+            else await GameStateJudgeAsync(gameRule, token);
+        }
 
-            Debug.Log(line);
+        // プレイヤーの指示に従う
+        async UniTask PlayerFollowAsync(string line, OpenAiRequest gameRule, CancellationToken token)
+        {
+            string request = Translator.Translate(line);
+            string response = await gameRule.RequestAsync(request);
+            InputMessenger.SendMessage(_gameState, response);
         }
 
         // ゲームの状態をAPIが判断して次の行動を決める
-        async UniTask NextActionAsync(OpenAiRequest api, CancellationToken token)
+        async UniTask GameStateJudgeAsync(OpenAiRequest gameRule, CancellationToken token)
         {
             string request = Translator.Translate(_gameState);
-            ApiResponseMessage response = await api.RequestAsync(request);
-            string command = response.choices[0].message.content;
-            InputMessenger.SendMessage(_gameState, command);
-
-            //Debug.Log(command);
+            string response = await gameRule.RequestAsync(request);
+            InputMessenger.SendMessage(_gameState, response);
         }
     }
 }
-
-// 台詞にHotとColdがある。
-// 短い間隔で指示をリクエストすると怒る。
-// 数値を心情に反映させる。
-// 指示だった場合は、それをAIのプレイに反映させる。

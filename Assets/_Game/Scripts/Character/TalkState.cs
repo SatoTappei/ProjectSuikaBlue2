@@ -17,12 +17,25 @@ namespace PSB.Game
         Queue<string> _playerSends = new();
         ReactiveCollection<string> _log = new();
         ReactiveProperty<string> _characterLine = new();
+        int _mental;
 
         public TalkState(CharacterSettings settings)
         {
             _settings = settings;
         }
 
+        /// <summary>
+        /// キャラクターの心情
+        /// </summary>
+        public int Mental
+        {
+            get => _mental;
+            set
+            {
+                _mental = value;
+                _mental = Mathf.Clamp(_mental, _settings.MinMental, _settings.MaxMental);
+            }
+        }
         /// <summary>
         /// キャラクター毎の設定
         /// </summary>

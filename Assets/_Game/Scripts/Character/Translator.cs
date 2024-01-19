@@ -25,5 +25,14 @@ namespace PSB.Game
 
             return request;
         }
+
+        /// <summary>
+        /// プレイヤーが送信した内容からAPIにリクエストするメッセージを生成
+        /// </summary>
+        public static string Translate(string playerSend)
+        {
+            string request = "次の指示に従ってください。" + playerSend;
+            return request;
+        }
     }
 }

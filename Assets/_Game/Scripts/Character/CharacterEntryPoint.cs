@@ -60,7 +60,7 @@ namespace PSB.Game
             string line = response.choices[0].message.content;
 
             _talkState.SetCharacterLine(line);
-            _talkState.AddLog(_logHeader, line);
+            _talkState.AddLog(_talkState.Settings.LogHeader, line);
 
             AudioPlayer.Play(AudioKey.CharacterSendSE, AudioPlayer.PlayMode.SE);
         }
@@ -74,8 +74,6 @@ namespace PSB.Game
             string line = response.choices[0].message.content;
 
             Debug.Log(line);
-
-            AudioPlayer.Play(AudioKey.CharacterSendSE, AudioPlayer.PlayMode.SE);
         }
 
         // ゲームの状態をAPIが判断して次の行動を決める
@@ -93,4 +91,5 @@ namespace PSB.Game
 
 // 台詞にHotとColdがある。
 // 短い間隔で指示をリクエストすると怒る。
-// 
+// 数値を心情に反映させる。
+// 指示だった場合は、それをAIのプレイに反映させる。

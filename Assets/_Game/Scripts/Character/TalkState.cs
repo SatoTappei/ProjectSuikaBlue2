@@ -12,11 +12,21 @@ namespace PSB.Game
     /// </summary>
     public class TalkState
     {
+        CharacterSettings _settings;
         StringBuilder _builder = new();
         Queue<string> _playerSends = new();
         ReactiveCollection<string> _log = new();
         ReactiveProperty<string> _characterLine = new();
 
+        public TalkState(CharacterSettings settings)
+        {
+            _settings = settings;
+        }
+
+        /// <summary>
+        /// キャラクター毎の設定
+        /// </summary>
+        public CharacterSettings Settings => _settings;
         /// <summary>
         /// 会話履歴
         /// </summary>

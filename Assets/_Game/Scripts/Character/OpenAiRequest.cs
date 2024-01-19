@@ -48,7 +48,7 @@ namespace PSB.Game
     }
     #endregion
 
-    public class OpenApiRequest
+    public class OpenAiRequest
     {
         const string ApiKey = "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";
         const string Version = "gpt-4-1106-preview";
@@ -56,7 +56,7 @@ namespace PSB.Game
 
         List<ApiRequestMessage> _messages = new();
 
-        public OpenApiRequest(string content)
+        public OpenAiRequest(string content)
         {
             _messages.Add(new ApiRequestMessage()
             {

@@ -2162,6 +2162,7 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects:
   - {fileID: 1796262591}
+  _characterSettings: {fileID: 11400000, guid: 6d360a08cce48cf4ead8ce605dd10da1, type: 2}
 --- !u!1 &1599485743
 GameObject:
   m_ObjectHideFlags: 0
@@ -2529,6 +2530,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameRule: {fileID: 4900000, guid: b07073a72003c0947b91e1301c4ce193, type: 3}
   _character: {fileID: 4900000, guid: 8172178744dfafe4ab0bd66722476ad3, type: 3}
+  _contextJudge: {fileID: 4900000, guid: fbbe3d091b8e08a4c8fc737af59e54ae, type: 3}
   _requestInterval: 2
   _useApi: 1
   _logHeader: "\u3081\u3044\u3069: "

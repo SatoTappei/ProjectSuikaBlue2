@@ -37,7 +37,7 @@ namespace PSB.Game
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
         {
-            OpenApiRequest api = new(_textAsset.ToString());
+            OpenAiRequest api = new(_textAsset.ToString());
             while (!token.IsCancellationRequested)
             {
                 // “ü—Í‘Ò‚¿

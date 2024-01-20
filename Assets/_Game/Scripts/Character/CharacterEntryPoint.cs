@@ -66,21 +66,23 @@ namespace PSB.Game
         // プレイヤーの入力の文脈を判定して次の行動を決める
         async UniTask ContextJudgeAsync(string playerSend, OpenAiRequest contextJudge, OpenAiRequest gameRule, CancellationToken token)
         {
-            if (playerSend == "") return;
+            // 入力が無い場合はゲームの状態で判定する
+            if (playerSend == "") { await GameStateJudgeAsync(gameRule, token); return; }
 
             string response = await contextJudge.RequestAsync(playerSend);
             // 心情を変更
             if (int.TryParse(response, out int result)) _talkState.Mental += result;
             // 指示(-1)と判断された場合はプレイヤーの指示に従う
-            if (result == -1) await PlayerFollowAsync(response, gameRule, token);
+            if (result == -1) await PlayerFollowAsync(playerSend, gameRule, token);
             else await GameStateJudgeAsync(gameRule, token);
         }
 
         // プレイヤーの指示に従う
-        async UniTask PlayerFollowAsync(string line, OpenAiRequest gameRule, CancellationToken token)
+        async UniTask PlayerFollowAsync(string playerSend, OpenAiRequest gameRule, CancellationToken token)
         {
-            string request = Translator.Translate(line);
+            string request = Translator.Translate(playerSend);
             string response = await gameRule.RequestAsync(request);
+            Debug.Log($"プレイヤー:{request} AI:{response}");
             InputMessenger.SendMessage(_gameState, response);
         }
 

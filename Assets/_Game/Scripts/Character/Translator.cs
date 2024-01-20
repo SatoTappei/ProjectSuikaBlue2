@@ -21,8 +21,6 @@ namespace PSB.Game
 
             request += "‚ ‚È‚½‚Í‚Ç‚Ì•ûŒü‚Éi‚İ‚Ü‚·‚©H";
 
-            Debug.Log(request);
-
             return request;
         }
 

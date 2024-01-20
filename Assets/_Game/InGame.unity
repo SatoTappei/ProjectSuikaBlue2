@@ -719,7 +719,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!81 &388968952
 AudioListener:
   m_ObjectHideFlags: 0
@@ -1297,6 +1297,7 @@ GameObject:
   - component: {fileID: 1108045840}
   - component: {fileID: 1108045841}
   - component: {fileID: 1108045842}
+  - component: {fileID: 1108045843}
   m_Layer: 0
   m_Name: Core
   m_TagString: Untagged
@@ -1366,6 +1367,19 @@ MonoBehaviour:
   - {fileID: 871654626}
   - {fileID: 2000729113}
   - {fileID: 1267175783}
+--- !u!114 &1108045843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108045838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf944e61089ac9e4cab7a00171b5f9b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _player: {fileID: 473316151}
 --- !u!1 &1164807182
 GameObject:
   m_ObjectHideFlags: 0
@@ -2648,7 +2662,7 @@ PrefabInstance:
     - target: {fileID: 7320476801200268998, guid: ff3d4b8f0a388df4d96d045f1b1066b6,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7320476801200268998, guid: ff3d4b8f0a388df4d96d045f1b1066b6,
         type: 3}

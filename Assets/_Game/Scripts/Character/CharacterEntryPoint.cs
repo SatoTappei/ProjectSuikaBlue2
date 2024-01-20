@@ -70,6 +70,7 @@ namespace PSB.Game
             if (playerSend == "") { await GameStateJudgeAsync(gameRule, token); return; }
 
             string response = await contextJudge.RequestAsync(playerSend);
+            _talkState.SetContextJudgeResponse(response);
             // 心情を変更
             if (int.TryParse(response, out int result)) _talkState.Mental += result;
             // 指示(-1)と判断された場合はプレイヤーの指示に従う
@@ -82,7 +83,7 @@ namespace PSB.Game
         {
             string request = Translator.Translate(playerSend);
             string response = await gameRule.RequestAsync(request);
-            Debug.Log($"プレイヤー:{request} AI:{response}");
+            _talkState.SetPlayerFollowTalk(request, response);
             InputMessenger.SendMessage(_gameState, response);
         }
 
@@ -91,6 +92,7 @@ namespace PSB.Game
         {
             string request = Translator.Translate(_gameState);
             string response = await gameRule.RequestAsync(request);
+            _talkState.SetGameStateJudgeTalk(request, response);
             InputMessenger.SendMessage(_gameState, response);
         }
     }

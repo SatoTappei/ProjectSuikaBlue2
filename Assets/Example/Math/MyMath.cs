@@ -115,4 +115,19 @@ public static class MyMath
         // ルートの計算自体は可能だが、精度が重要なので既存のものを使う。
         return Mathf.Sqrt(f);
     }
+
+    /// <summary>
+    /// クォータニオン
+    /// 軸の各成分は0~1、角度はオイラー角
+    /// </summary>
+    public static Quaternion Quat(Vector3 axis, float euler)
+    {
+        euler = euler / 360 * Mathf.PI * 2;
+        float x = axis.x * Mathf.Sin(euler / 2);
+        float y = axis.y * Mathf.Sin(euler / 2);
+        float z = axis.z * Mathf.Sin(euler / 2);
+        float w = Mathf.Cos(euler / 2);
+
+        return new Quaternion(x, y, z, w);
+    }
 }

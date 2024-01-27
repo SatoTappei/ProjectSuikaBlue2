@@ -27,16 +27,18 @@ namespace PSB.Novel
 
         async UniTask LoopAsync(CancellationToken token)
         {
+            // タイトルとADVパートのループ
             while (!token.IsCancellationRequested)
             {
+                // ボタンクリックで対応したセーブを読み込む
                 SaveData save = await _title.SubmitEpisodeAsync(token);
 
                 Index = save.Index;
                 Episode = save.Episode;
-                Debug.Log(Index + " " + Episode);
 
                 await _title.HideUiAsync(token);
 
+                // YAMLを読み込む
                 string yaml = YamlAddress.Get(save.Episode);
                 SceneFlow sceneFlow = YamlReader.Deserialize(yaml);
                 await PlaySceneAsync(sceneFlow, save.Index, token);
@@ -50,28 +52,40 @@ namespace PSB.Novel
             IReadOnlyList<string[]> commands = flow.ToCommands();
             LineContent[] lines = flow.ToLineContents();
 
+            // セーブ位置までスキップ
+            for (int i = 0; i < startIndex; i++)
+            {
+                CancellationTokenSource s = new CancellationTokenSource();
+                _commander?.RunAsync(commands[i], s.Token, sync: false).Forget();
+            }
+
             Index = startIndex;
             CancellationTokenSource cts = new();
             while (Index < flow.Sequence.Length)
             {
-                cts = new();
-
-                _printer?.ShowMessage(lines[Index].Line, lines[Index].Name);
-                _backLog?.Add(lines[Index].Line, lines[Index].Name);
-                _commander?.RunAsync(commands[Index], cts.Token).Forget();
-
-                await OnClickAsync(token);
-                if (_printer.IsPrinting)
+                // Cancelされるとスキップ
+                using (cts = new())
                 {
-                    _printer.Skip();
+
+                    // 台詞と演出を再生
+                    _printer?.ShowMessage(lines[Index].Line, lines[Index].Name);
+                    _backLog?.Add(lines[Index].Line, lines[Index].Name);
+                    _commander?.RunAsync(commands[Index], cts.Token).Forget();
+
+                    // 入力待ち
                     await OnClickAsync(token);
+                    if (_printer.IsPrinting)
+                    {
+                        _printer.Skip();
+                        await OnClickAsync(token);
+                    }
+
+                    Index++;
+                    cts.Cancel();
+
+                    // キャンセルされた際のイベントの反映を行うので1フレーム待たないといけない
+                    await UniTask.Yield(token);
                 }
-
-                Index++;
-                cts.Cancel();
-
-                // キャンセルされた際のイベントの反映を行うので1フレーム待たないといけない
-                await UniTask.Yield(token);
             }
 
             if (!cts.IsCancellationRequested)

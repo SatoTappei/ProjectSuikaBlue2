@@ -25,7 +25,7 @@ namespace PSB.Novel
         /// <summary>
         /// コマンドを実行するイベントに変換
         /// </summary>
-        public async UniTask RunAsync(string[] commands, CancellationToken skipToken)
+        public async UniTask RunAsync(string[] commands, CancellationToken skipToken, bool sync = true)
         {
             List<Queue<UniTask>> tasks = new();
             for (int i = 0; i < commands.Length; i++)
@@ -41,7 +41,7 @@ namespace PSB.Novel
 
                 // 続けて実行される場合は前のイベントのキューに、
                 // 並列で実行する場合は新たに追加されたキューにイベントを追加
-                AddEvent(tasks[^1], split, skipToken);
+                AddEvent(tasks[^1], split, skipToken, sync);
             }
 
             // 並列で実行されるキューから1つずつ取り出して実行を繰り返す
@@ -66,31 +66,31 @@ namespace PSB.Novel
         }
 
         // コマンドに対応したイベントをキューに追加
-        void AddEvent(Queue<UniTask> q, string[] command, CancellationToken skipToken)
+        void AddEvent(Queue<UniTask> q, string[] command, CancellationToken skipToken, bool sync = true)
         {
-            if (command[0] == "キャラ表示") q.Enqueue(ShowCharacterAsync(command, skipToken));
-            else if (command[0] == "キャラ消去") q.Enqueue(HideCharacterAsync(command, skipToken));
+            if (command[0] == "キャラ表示") q.Enqueue(ShowCharacterAsync(command, skipToken, sync));
+            else if (command[0] == "キャラ消去") q.Enqueue(HideCharacterAsync(command, skipToken, sync));
             else if (command[0] == "キャラ上げ") q.Enqueue(CharacterMoveToFrontAsync(command, skipToken));
             else if (command[0] == "キャラ下げ") q.Enqueue(CharacterMoveToBackAsync(command, skipToken));
-            else if (command[0] == "キャラジャンプ") q.Enqueue(CharacterJumpAsync(command, skipToken));
+            else if (command[0] == "キャラジャンプ") q.Enqueue(CharacterJumpAsync(command, skipToken, sync));
             else Debug.LogWarning("対応するイベントが無い: " + command[0]);
         }
 
         // キャラ表示
-        UniTask ShowCharacterAsync(string[] split, CancellationToken skipToken)
+        UniTask ShowCharacterAsync(string[] split, CancellationToken skipToken, bool sync = true)
         {
             string position = split[1];
             string character = split[2];
-            float duration = float.Parse(split[3]);
+            float duration = sync ? float.Parse(split[3]) : 0;
             return UniTask.Defer(
                 () => CharacterFrame(position).FadeInAsync(SelectCharacter(character), duration, skipToken));
         }
 
         // キャラ消去
-        UniTask HideCharacterAsync(string[] split, CancellationToken skipToken)
+        UniTask HideCharacterAsync(string[] split, CancellationToken skipToken, bool sync = true)
         {
             string position = split[1];
-            float duration = float.Parse(split[2]);
+            float duration = sync ? float.Parse(split[2]) : 0;
             return UniTask.Defer(
                 () => CharacterFrame(position).FadeOutAsync(duration, skipToken));
         }
@@ -114,10 +114,10 @@ namespace PSB.Novel
         }
 
         // キャラジャンプ
-        UniTask CharacterJumpAsync(string[] split, CancellationToken skipToken)
+        UniTask CharacterJumpAsync(string[] split, CancellationToken skipToken, bool sync = true)
         {
             string position = split[1];
-            float duration = float.Parse(split[2]);
+            float duration = sync ? float.Parse(split[2]) : 0;
             int count = int.Parse(split[3]);
             return UniTask.Defer(
                 () => CharacterFrame(position).JumpAsync(duration, count, skipToken));

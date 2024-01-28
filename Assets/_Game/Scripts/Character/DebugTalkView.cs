@@ -14,7 +14,8 @@ namespace PSB.Game
         [SerializeField] Text _playerFollowResponse;
         [SerializeField] Text _gameStateJudgeRequest;
         [SerializeField] Text _gameStateJudgeResponse;
-        
+        [SerializeField] Text _mental;
+
         TalkState _talkState;
 
         [Inject]

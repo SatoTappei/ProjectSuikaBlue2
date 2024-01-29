@@ -4,9 +4,12 @@ using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
 
-public class InGameEntryPoint : MonoBehaviour
+namespace PSB.Game
 {
-    void Awake()
+    public class InGameEntryPoint : MonoBehaviour
     {
+        void Awake()
+        {
+        }
     }
 }

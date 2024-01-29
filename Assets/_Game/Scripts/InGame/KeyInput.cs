@@ -2,22 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
-using UniRx.Triggers;
 
 namespace PSB.Game
 {
-    // キー入力でゲームを動かすデバッグ用
     public class KeyInput : MonoBehaviour
     {
         void Update()
         {
-            PlayerControlMessage msg = new();
-            bool isInput = false;
-            if (Input.GetKey(KeyCode.A)) { msg.KeyDownA = true; isInput = true; }
-            if (Input.GetKey(KeyCode.D)) { msg.KeyDownD = true; isInput = true; }
-            if (Input.GetKey(KeyCode.Space)) { msg.KeyDownSpace = true; isInput = true; }
+            KeyInputMessage msg = new();
+            if (Input.GetKey(KeyCode.A)) msg.KeyDownA = true;
+            if (Input.GetKey(KeyCode.S)) msg.KeyDownS = true;
+            if (Input.GetKey(KeyCode.D)) msg.KeyDownD = true;
+            if (Input.GetKey(KeyCode.W)) msg.KeyDownW = true;
+            if (Input.GetKey(KeyCode.Space)) msg.KeyDownSpace = true;
 
-            if (isInput) MessageBroker.Default.Publish(msg);
+            if (msg.KeyDownA || msg.KeyDownS || msg.KeyDownD || msg.KeyDownW || msg.KeyDownSpace)
+            {
+                MessageBroker.Default.Publish(msg);
+            }
         }
     }
 }

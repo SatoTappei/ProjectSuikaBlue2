@@ -13,13 +13,13 @@ namespace PSB.Game
         /// </summary>
         public static void SendMessage(IReadOnlyGameState gameState, string command)
         {
-            PlayerControlMessage msg = new PlayerControlMessage();
+            KeyInputMessage msg = new KeyInputMessage();
             if (command == "1") msg.KeyDownA = true;
             if (command == "2") msg.KeyDownD = true;
             if (command == "3")
             {
-                if (gameState.Forward == Player.Forward.Left) msg.KeyDownA = true;
-                else if (gameState.Forward == Player.Forward.Right) msg.KeyDownD = true;
+                if (gameState.Forward == GameExample.Player.Forward.Left) msg.KeyDownA = true;
+                else if (gameState.Forward == GameExample.Player.Forward.Right) msg.KeyDownD = true;
 
                 msg.KeyDownSpace = true;
             }

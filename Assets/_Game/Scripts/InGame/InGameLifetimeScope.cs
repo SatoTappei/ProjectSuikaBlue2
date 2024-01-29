@@ -1,9 +1,12 @@
 using VContainer;
 using VContainer.Unity;
 
-public class InGameLifetimeScope : LifetimeScope
+namespace PSB.Game
 {
-    protected override void Configure(IContainerBuilder builder)
+    public class InGameLifetimeScope : LifetimeScope
     {
+        protected override void Configure(IContainerBuilder builder)
+        {
+        }
     }
 }

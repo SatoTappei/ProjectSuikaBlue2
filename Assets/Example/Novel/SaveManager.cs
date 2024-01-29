@@ -20,7 +20,6 @@ public class SaveManager
     /// </summary>
     public static void Save(int episode, int index)
     {
-        Debug.Log("‚³ƒ”‚¥" + episode + " " + index);
         using (StreamWriter writer = new(Path(), append: false))
         {
             SaveData save = new() { Episode = episode, Index = index };
@@ -43,7 +42,7 @@ public class SaveManager
             reader.Close();
             save = JsonUtility.FromJson<SaveData>(str);
         }
-        Debug.Log("‚ë‚Å" + save.Episode + " " + save.Index);
+
         return save;
     }
 

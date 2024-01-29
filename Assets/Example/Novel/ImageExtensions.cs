@@ -15,7 +15,6 @@ namespace PSB.Novel
         {
             Color from = image.color;
             from.a = 0;
-
             Color to = image.color;
             to.a = 1;
             await FadeAsync(image, from, to, duration, token);
@@ -25,7 +24,6 @@ namespace PSB.Novel
         {
             Color from = image.color;
             from.a = 1;
-
             Color to = image.color;
             to.a = 0;
             await FadeAsync(image, from, to, duration, token);

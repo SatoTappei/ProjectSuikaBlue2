@@ -11,6 +11,8 @@ namespace PSB.Novel
         public static async UniTask MoveRelativeAsync(this Transform transform, Vector2 to, 
             float duration, Vector3 skip, CancellationToken token)
         {
+            if (duration == 0) { transform.position = to; return; }
+
             for (float t = 0; t < 1; t += Time.deltaTime / duration)
             {
                 // スキップされた際に元の位置に戻る場合と、移動先に位置を変更する場合がある

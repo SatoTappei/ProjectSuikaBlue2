@@ -7,11 +7,22 @@ using System.Threading;
 
 namespace PSB.Game
 {
+    // このスクリプトがアタッチされたオブジェクトが移動と回転どちらも行う
     public class Player : MonoBehaviour
     {
+        [Header("地面からの高さ")]
+        [SerializeField] float _groundOffset;
+
         void Start()
         {
+            Init();
             UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
+        }
+
+        void Init()
+        {
+            // 地面に立たせる
+            transform.Translate(Vector3.up * _groundOffset);
         }
 
         async UniTaskVoid UpdateAsync(CancellationToken token)

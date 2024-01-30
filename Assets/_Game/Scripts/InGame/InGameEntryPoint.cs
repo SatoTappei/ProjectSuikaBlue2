@@ -10,6 +10,7 @@ namespace PSB.Game
     {
         void Awake()
         {
+
         }
     }
 }

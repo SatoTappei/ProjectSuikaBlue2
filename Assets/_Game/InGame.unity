@@ -717,6 +717,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tileBuilder: {fileID: 1108045841}
   _size: 20
+  _cellSize: 2.85
   _seed: 1
   _randomSeed: 0
   _stepSpeed: 0.016

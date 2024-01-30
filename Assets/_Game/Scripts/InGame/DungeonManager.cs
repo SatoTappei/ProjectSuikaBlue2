@@ -10,8 +10,10 @@ namespace PSB.Game
     public class DungeonManager : MonoBehaviour
     {
         [SerializeField] TileBuilder _tileBuilder;
-        [Header("生成設定")]
+        [Header("ダンジョン生成設定")]
         [SerializeField] int _size = 20;
+        [SerializeField] float _cellSize = 1;
+        [Header("WFC設定")]
         [Min(1)]
         [SerializeField] uint _seed = 1;
         [SerializeField] bool _randomSeed;
@@ -19,9 +21,19 @@ namespace PSB.Game
         [Range(0.016f, 1.0f)]
         [SerializeField] float _stepSpeed = 0.016f;
 
+        Dungeon _dungeon;
+
+        void Awake()
+        {
+            // タイルを生成してそれにダンジョンのグリッドを合わせる。
+            // 2つのタイルの間に1つのセルが存在するので、サイズそのままだと1つ足りなくなってしまう。
+            _dungeon = new(_size - 1, _size - 1, _cellSize);
+        }
+
         void Start()
         {
             UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
+            _dungeon.CheckCell(1, 0);
         }
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
@@ -35,6 +47,11 @@ namespace PSB.Game
                 _tileBuilder.Draw(logic.Step());
                 await UniTask.WaitForSeconds(_stepSpeed, cancellationToken: token);
             }
+        }
+
+        void OnDrawGizmos()
+        {
+            if (_dungeon != null) _dungeon.DrawGridOnGizmos();
         }
     }
 }

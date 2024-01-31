@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
-using PSB.Game.WFC; // WFCアルゴリズム周りは専用の名前空間にまとめてある
+using PSB.Game.WFC2; // WFCアルゴリズム周りは専用の名前空間にまとめてある
 
 namespace PSB.Game
 {
@@ -51,7 +51,7 @@ namespace PSB.Game
 
         void OnDrawGizmos()
         {
-            if (_dungeon != null) _dungeon.DrawGridOnGizmos();
+            //if (_dungeon != null) _dungeon.DrawGridOnGizmos();
         }
     }
 }

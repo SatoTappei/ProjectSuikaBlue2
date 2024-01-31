@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using Tile = PSB.Game.WFC.Cell.Tile;
-using PSB.Game.WFC; // WFCアルゴリズム周りは専用の名前空間にまとめてある
+using Tile = PSB.Game.WFC2.Cell.Tile;
+using PSB.Game.WFC2; // WFCアルゴリズム周りは専用の名前空間にまとめてある
 
 namespace PSB.Game
 {

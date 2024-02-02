@@ -9,21 +9,23 @@ namespace PSB.Game.WFC
     {
         public enum Tile
         {
+            // è∞
             Floor,
+            // è\éö
             Cross,
-            // äp
-            DownLeft,
-            UpLeft,
-            DownRight,
-            UpRight,
             // íºê¸
-            Vertical,
-            Horizontal,
+            StraightU,
+            StraightR,
+            // äp
+            CornerU,
+            CornerR,
+            CornerD,
+            CornerL,
             // Téö
-            UpT,
-            DownT,
-            LeftT,
-            RightT,
+            TJiU,
+            TJiR,
+            TJiD,
+            TJiL,
         }
 
         public Vector2Int Index;

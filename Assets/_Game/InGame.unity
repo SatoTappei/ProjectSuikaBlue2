@@ -620,7 +620,7 @@ GameObject:
   - component: {fileID: 1108045839}
   - component: {fileID: 1108045840}
   - component: {fileID: 1108045842}
-  - component: {fileID: 1108045841}
+  - component: {fileID: 1108045844}
   - component: {fileID: 1108045843}
   m_Layer: 0
   m_Name: Core
@@ -656,53 +656,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f5091e90ca67354fbf03920aae9488c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1108045841
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1108045838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef34f4574e7dff34ea34efad7049b858, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _data:
-  - Tile: 0
-    Prefab: {fileID: 4131043242762657513, guid: 29882b569e3207c4983a694d452114a1,
-      type: 3}
-  - Tile: 1
-    Prefab: {fileID: 4131043242762657513, guid: 0afdb3939c4aa8f46b8a51fad4bf89cc,
-      type: 3}
-  - Tile: 2
-    Prefab: {fileID: 4131043242762657513, guid: 41b68d130f4d54c4889a1edc3b1eeefb,
-      type: 3}
-  - Tile: 3
-    Prefab: {fileID: 4131043242762657513, guid: 0580bfe30d2b15142818edb303d28131,
-      type: 3}
-  - Tile: 4
-    Prefab: {fileID: 4131043242762657513, guid: 28ee1242d9ac20b46b4eca032b4d577e,
-      type: 3}
-  - Tile: 5
-    Prefab: {fileID: 4131043242762657513, guid: aebe460afcf3b04499af5b704ccb8582,
-      type: 3}
-  - Tile: 6
-    Prefab: {fileID: 4131043242762657513, guid: 068a9cdc14cb0b84b93d69254e3a9a25,
-      type: 3}
-  - Tile: 7
-    Prefab: {fileID: 4131043242762657513, guid: 5bfc86d2b9372234d8593cfa83a54d31,
-      type: 3}
-  - Tile: 8
-    Prefab: {fileID: 4131043242762657513, guid: 3ea578a105ed22f40b5dfb592270f9c9,
-      type: 3}
-  - Tile: 9
-    Prefab: {fileID: 4131043242762657513, guid: 5a542c22f84f5cc4c9dab035cdc61c24,
-      type: 3}
-  - Tile: 10
-    Prefab: {fileID: 4131043242762657513, guid: 5e852cca7f86f4f4183a88b87c39dbff,
-      type: 3}
-  _tileSize: 2.85
 --- !u!114 &1108045842
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -715,11 +668,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51d16eb538d28774fb55dbf6831543f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tileBuilder: {fileID: 1108045841}
+  _tileBuilder: {fileID: 1108045844}
   _size: 20
   _cellSize: 2.85
   _seed: 1
-  _randomSeed: 0
+  _randomSeed: 1
   _stepSpeed: 0.016
 --- !u!114 &1108045843
 MonoBehaviour:
@@ -738,6 +691,69 @@ MonoBehaviour:
   _camera: {fileID: 388968954}
   _follow: {fileID: 1421440239}
   _offset: {x: 0, y: 0, z: 0}
+--- !u!114 &1108045844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108045838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef34f4574e7dff34ea34efad7049b858, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data:
+  - _name: Floor
+    Prefab: {fileID: 4131043242762657513, guid: 160b4ca8d2abc844c945f3772a6eb1e9,
+      type: 3}
+    RightPrefab: {fileID: 0}
+    DownPrefab: {fileID: 0}
+    LeftPrefab: {fileID: 0}
+    Up: 0
+    Right: 0
+    Down: 0
+    Left: 0
+  - _name: Cross
+    Prefab: {fileID: 8994509809215460978, guid: 983bd4e702ae64a40a5d53a647d579b4,
+      type: 3}
+    RightPrefab: {fileID: 0}
+    DownPrefab: {fileID: 0}
+    LeftPrefab: {fileID: 0}
+    Up: 1
+    Right: 1
+    Down: 1
+    Left: 1
+  - _name: Straight
+    Prefab: {fileID: 2882056092572509908, guid: 09ddf7fe0e5783142aa09e42a7354424,
+      type: 3}
+    RightPrefab: {fileID: 0}
+    DownPrefab: {fileID: 0}
+    LeftPrefab: {fileID: 0}
+    Up: 2
+    Right: 3
+    Down: 2
+    Left: 3
+  - _name: Corner
+    Prefab: {fileID: 6574156923206455658, guid: d7381d45806dfef47ae5c50b5f07c776,
+      type: 3}
+    RightPrefab: {fileID: 0}
+    DownPrefab: {fileID: 0}
+    LeftPrefab: {fileID: 0}
+    Up: 4
+    Right: 5
+    Down: 6
+    Left: 7
+  - _name: T
+    Prefab: {fileID: 938931797716564298, guid: 5b954b0a852d8fe4d92f0cd6f3a02845, type: 3}
+    RightPrefab: {fileID: 0}
+    DownPrefab: {fileID: 0}
+    LeftPrefab: {fileID: 0}
+    Up: 8
+    Right: 9
+    Down: 10
+    Left: 11
+  _tileSize: 2.85
 --- !u!1 &1421440238
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,10 +9,10 @@ namespace PSB.Game.WFC
 {
     public class Logic
     {
-        // 上下左右の順
+        // 順番はアルゴリズムが正しく動作するかとは無関係だが、生成される見た目には影響が出る。
         readonly Vector2Int[] FourDirections =
         {
-            Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
+            Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
         };
 
         Rule _rule;
@@ -103,7 +103,7 @@ namespace PSB.Game.WFC
                 Vector2Int connected = ConnectedDirection(dir);
                 foreach (Tile tile in _map[dy, dx].SelectableTiles)
                 {
-                    IReadOnlyList<Tile> tilesForDirection = _rule.GetConnectableTilesForDirection(tile, connected);
+                    IReadOnlyList<Tile> tilesForDirection = _rule.GetConnectableTiles(tile, connected);
                     validTiles = validTiles.Concat(tilesForDirection);
                 }
                 // 積集合を取り、有効なタイル以外を省く

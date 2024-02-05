@@ -671,10 +671,13 @@ MonoBehaviour:
   _tileBuilder: {fileID: 1108045844}
   _size: 20
   _cellSize: 2.85
+  _entry: {x: 10, y: 10}
   _wfcSeed: 1
   _wfcRandomSeed: 1
   _walkSeed: 1
   _walkRandomSeed: 1
+  _cellRayOffset: {x: 0, y: 1, z: 0}
+  _cellRayHitMax: 9
   _stepSpeed: 0.016
 --- !u!114 &1108045843
 MonoBehaviour:

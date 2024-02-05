@@ -5,6 +5,7 @@ using UnityEngine;
 namespace PSB.Game
 {
     // 複数のクラスで使用されるメッセージング用の構造体はここに記述する。
+    // 一括で管理するため全シーン共通で使う。
 
     /// <summary>
     /// OpenAIからのレスポンスをキー入力に変換してCharacterからInGameに送信される

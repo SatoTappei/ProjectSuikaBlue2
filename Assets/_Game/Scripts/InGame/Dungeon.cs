@@ -16,6 +16,9 @@ namespace PSB.Game
 
             public Vector2Int Index { get; private set; }
             public Vector3 Position { get; private set; }
+            public LocationKey Location { get; set; }
+            public ItemKey Item { get; set; }
+            public CharacterKey Character { get; set; }
         }
 
         float _cellSize;

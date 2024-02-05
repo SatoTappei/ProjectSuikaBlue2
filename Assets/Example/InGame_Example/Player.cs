@@ -120,8 +120,9 @@ namespace PSB.GameExample
             {
                 Vector3 center = _transform.position + side + _groundingOffset;
                 Vector3 halfHeight = _transform.up * (_groundingHeight / 2);
-                Physics.Linecast(center + halfHeight, center - halfHeight, out RaycastHit hit, Const.FootingLayer);
-                return hit.collider != null;
+                //Physics.Linecast(center + halfHeight, center - halfHeight, out RaycastHit hit, Const.FootingLayer);
+                //return hit.collider != null;
+                return false;
             }
         }
 
@@ -145,15 +146,15 @@ namespace PSB.GameExample
         // 周囲の状況を調べる
         void CheckSurroundings()
         {
-            // ステージの縁に立っているか判定
-            _gameState.OnStageBorder = Physics.Raycast(_eye.position, _eye.forward, 
-                _stageBorderRaycastLength, Const.StageBorderLayer);
-            // 穴の手前に立っているか判定
-            _gameState.OnHoleFront = Physics.Raycast(_eye.position, _eye.forward + Vector3.down, 
-                _holeFrontRaycastLength, Const.HoleRangeLayer);
-            // 目の前に段差があるか判定
-            _gameState.OnStepFront = Physics.Raycast(_kness.position, _eye.forward,
-                _stepFrontRaycastLength, Const.FootingLayer);
+            //// ステージの縁に立っているか判定
+            //_gameState.OnStageBorder = Physics.Raycast(_eye.position, _eye.forward, 
+            //    _stageBorderRaycastLength, Const.StageBorderLayer);
+            //// 穴の手前に立っているか判定
+            //_gameState.OnHoleFront = Physics.Raycast(_eye.position, _eye.forward + Vector3.down, 
+            //    _holeFrontRaycastLength, Const.HoleRangeLayer);
+            //// 目の前に段差があるか判定
+            //_gameState.OnStepFront = Physics.Raycast(_kness.position, _eye.forward,
+            //    _stepFrontRaycastLength, Const.FootingLayer);
 
             Debug.Log("ステージの端:" + _gameState.OnStageBorder);
         }

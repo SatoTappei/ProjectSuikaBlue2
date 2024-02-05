@@ -5,8 +5,10 @@ using UnityEngine;
 namespace PSB.Game
 {
     // 複数のクラスで使用される列挙型はここに記述する。
+    // 一括で管理するため全シーン共通で使う。
 
     /// <summary>
+    /// キャラクターの向いている方向を表す。
     /// Z軸の正の方向を北、X軸の正の方向を東とする。
     /// </summary>
     public enum Direction
@@ -17,18 +19,35 @@ namespace PSB.Game
         South,
     }
 
-    public enum EightDirection
+    /// <summary>
+    /// タイルがどのような場所なのかを決めるキー
+    /// </summary>
+    public enum LocationKey
     {
-        Up,
-        Down,
-        Left,
-        Right,
-        UpperLeft,
-        UpperRight,
-        LowerLeft,
-        LowerRight
+        Normal,
+        Start,
+        Goal,
     }
 
+    /// <summary>
+    /// アイテムを判定するためのキー
+    /// </summary>
+    public enum ItemKey
+    {
+        Dummy,
+    }
+
+    /// <summary>
+    /// キャラクターを判定するためのキー
+    /// </summary>
+    public enum CharacterKey
+    {
+        Dummy,
+    }
+
+    /// <summary>
+    /// 再生する音を指定するためのキー
+    /// </summary>
     public enum AudioKey
     {
         PlayerSendSE, // プレイヤーが送信した
@@ -37,6 +56,9 @@ namespace PSB.Game
         CharacterTouchSE, // キャラクターをタッチした
     }
 
+    /// <summary>
+    /// 再生するパーティクルを指定するためのキー
+    /// </summary>
     public enum ParticleKey
     {
         MouseClick, // 画面をクリック

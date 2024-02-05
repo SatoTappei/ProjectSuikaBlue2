@@ -28,6 +28,6 @@ namespace PSB.Game
         /// <summary>
         /// プレイヤーから見たゴールの方角
         /// </summary>
-        public EightDirection GoalDirection { get; set; }
+        //public EightDirection GoalDirection { get; set; }
     }
 }

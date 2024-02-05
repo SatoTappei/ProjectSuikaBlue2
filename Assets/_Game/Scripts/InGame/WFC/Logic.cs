@@ -96,7 +96,7 @@ namespace PSB.Game.WFC
                 int dx = x + dir.x;
 
                 // マップの範囲内かチェック
-                if (!IsWithinLength(dy, dx)) continue;
+                if (!Utility.CheckInLength(_map, dy, dx)) continue;
 
                 // 指定方向のセルの選択可能なタイルに基づいて、接続可能なタイルをvalidTilesに追加
                 IEnumerable<Tile> validTiles = new Tile[0];
@@ -121,11 +121,6 @@ namespace PSB.Game.WFC
             if (dir == Vector2Int.up) return Vector2Int.left;
 
             throw new System.ArgumentException("上下左右以外のVector2Intが引数になっている: " + dir);
-        }
-
-        bool IsWithinLength(int y, int x)
-        {
-            return 0 <= y && y < _map.GetLength(0) && 0 <= x && x < _map.GetLength(1);
         }
 
         List<Cell> SortLowEntropy(List<Cell> cells)

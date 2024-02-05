@@ -33,9 +33,16 @@ namespace PSB.Game
         [Header("1タイル当たりの大きさ")]
         [SerializeField] float _tileSize = 1;
 
-        Dictionary<Tile, Data> _tiles = new();
-        List<GameObject> _tileObjects = new();
         Transform _parent;
+        // 生成するタイル一覧
+        Dictionary<Tile, Data> _tiles = new();
+        // 位置と生成したオブジェクトを対応させる
+        Dictionary<Vector2Int, GameObject> _tileObjects = new();
+
+        /// <summary>
+        /// 位置と生成したオブジェクトを対応させる
+        /// </summary>
+        public IReadOnlyDictionary<Vector2Int, GameObject> TileObjects => _tileObjects;
 
         void Awake()
         {
@@ -57,12 +64,13 @@ namespace PSB.Game
         /// </summary>
         public void Draw(Cell[,] map)
         {
-            DestroyTileObjectsAll();
-
             for (int i = 0; i < map.GetLength(0); i++)
             {
                 for (int k = 0; k < map.GetLength(1); k++)
                 {
+                    // 既に生成済みの位置の場合
+                    if (_tileObjects.ContainsKey(new Vector2Int(k, i))) continue;
+
                     CreateTile(map[i, k], i, k);
                 }
             }
@@ -73,14 +81,14 @@ namespace PSB.Game
         {
             // 崩壊済みかつ、念のため選択可能なタイルの長さが1かを調べる
             if (!cell.IsCollapsed || cell.SelectableTiles.Length > 1) return;
-            
+
             if (_tiles.TryGetValue(cell.SelectedTile, out Data data))
             {
                 (GameObject prefab, float angle) args = PrefabAndAngle(cell.SelectedTile, data);
                 Vector3 pos = new Vector3(y * _tileSize, 0, x * _tileSize);
                 GameObject g = Instantiate(args.prefab, pos, Quaternion.Euler(0, args.angle, 0), _parent);
 
-                _tileObjects.Add(g);
+                _tileObjects.Add(new Vector2Int(x, y), g);
             }
             else
             {
@@ -99,18 +107,6 @@ namespace PSB.Game
             if (tile == data.Left) return (data.LeftPrefab == null ? data.Prefab : data.LeftPrefab, 270.0f);
 
             throw new KeyNotFoundException("生成するタイルに登録されていない: " + tile);
-        }
-
-        // 全部削除
-        // アルゴリズムが正しく動作しているかを確認する用途
-        void DestroyTileObjectsAll()
-        {
-            for (int i = _tileObjects.Count - 1; i >= 0; i--)
-            {
-                Destroy(_tileObjects[i]);
-            }
-
-            _tileObjects.Clear();
         }
     }
 }

@@ -6,12 +6,13 @@ namespace PSB.Game
 {
     public class Dungeon
     {
-        class Cell
+        public class Cell : IReadOnlyCell
         {
-            public Cell(int y, int x, Vector3 position)
+            public Cell(int x, int y, Vector3 position)
             {
-                Index = new Vector2Int(y, x);
+                Index = new Vector2Int(x, y);
                 Position = position;
+                Adjacent = new(4); // 上下左右
             }
 
             public Vector2Int Index { get; private set; }
@@ -19,11 +20,17 @@ namespace PSB.Game
             public LocationKey Location { get; set; }
             public ItemKey Item { get; set; }
             public CharacterKey Character { get; set; }
+            public List<IReadOnlyCell> Adjacent { get; set; }
         }
 
         float _cellSize;
         Cell[,] _grid;
-        
+
+        /// <summary>
+        /// 読み取り専用の全てのセル
+        /// </summary>
+        public IReadOnlyCell[,] Grid => _grid;
+
         public Dungeon(int width, int height, float cellSize)
         {
             _cellSize = cellSize;
@@ -34,24 +41,15 @@ namespace PSB.Game
         void Create(int height, int width, float cellSize)
         {
             _grid = new Cell[height, width];
-            for (int i = 0; i < height; i++)
+            for (int y = 0; y < height; y++)
             {
-                for (int k = 0; k < width; k++)
+                for (int x = 0; x < width; x++)
                 {
-                    float px = i * _cellSize + _cellSize / 2;
-                    float py = k * _cellSize + _cellSize / 2;
                     // 左下が(0, 0)になっており、xz平面上のz軸方向をy、x軸方向をxにしてある。
                     // Unityのxz平面の座標系と同じ。
-                    _grid[i, k] = new(i, k, new Vector3(py, 0, px));
+                    _grid[y, x] = new Cell(x, y, IndexToPosition(x, y, cellSize));
                 }
             }
-        }
-
-        public void CheckCell(int y, int x)
-        {
-            Vector3 p = _grid[y, x].Position;
-            GameObject g = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            g.transform.position = p;
         }
 
         /// <summary>
@@ -69,6 +67,48 @@ namespace PSB.Game
                     Gizmos.DrawWireCube(_grid[i, k].Position, new Vector3(_cellSize, 0.05f, _cellSize));
                 }
             }
+
+            DrawAdjacentOnGizmos();
+        }
+
+        /// <summary>
+        /// 2つのセル同士を繋げる
+        /// </summary>
+        public void ConnectCell(int x1, int y1, int x2, int y2)
+        {
+            _grid[y1, x1].Adjacent.Add(_grid[y2, x2]);
+            _grid[y2, x2].Adjacent.Add(_grid[y1, x1]);
+        }
+
+        // 隣接リストをギズモに描画
+        void DrawAdjacentOnGizmos()
+        {
+            Gizmos.color = Color.red;
+            foreach (Cell c in _grid)
+            {
+                foreach(IReadOnlyCell d in c.Adjacent)
+                {
+                    Gizmos.DrawLine(c.Position, d.Position);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 添え字を座標に変換
+        /// </summary>
+        public static Vector3 IndexToPosition(int x, int y, float cellSize)
+        {
+            float px = x * cellSize + cellSize / 2;
+            float py = y * cellSize + cellSize / 2;
+            return new Vector3(px, 0, py);
+        }
+
+        /// <summary>
+        /// 添え字を座標に変換
+        /// </summary>
+        public static Vector3 IndexToPosition(Vector2Int index, float cellSize)
+        {
+            return IndexToPosition(index.x, index.y, cellSize);
         }
     }
 }

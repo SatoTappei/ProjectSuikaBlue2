@@ -52,7 +52,7 @@ namespace PSB.Game
             _dungeon = new(h, w, _cellSize);
 
             uint seed = _walkRandomSeed ? Utility.RandomSeed() : _walkSeed;
-            _walk = new(h, h, _cellSize, seed);
+            _walk = new(h, w, seed);
         }
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
@@ -94,6 +94,15 @@ namespace PSB.Game
             }
         }
 
+        // 作った経路をダンジョンに反映させる
+        void CopyPathToDungeon()
+        {
+            foreach(SelfAvoidingWalk.Cell c in _walk.Path)
+            {
+
+            }
+        }
+
         // スタートからゴールまでの経路にある壁を削除する
         void RemoveWallOnPath()
         {
@@ -101,12 +110,15 @@ namespace PSB.Game
             Vector3 prev = default;
             bool first = true;
             // 経路の各セル同士をレイキャスト
-            foreach(IReadOnlyPosition c in _walk.Path)
+            foreach(SelfAvoidingWalk.Cell c in _walk.Path)
             {
+                // アルゴリズムのクラスは実際の座標を保持していないので座標に変換
+                Vector3 current = Dungeon.IndexToPosition(c.Index, _cellSize);
+
                 if (!first)
                 {
-                    Vector3 dir = (c.Position - prev).normalized;
-                    float dist = (c.Position - prev).magnitude;
+                    Vector3 dir = (current - prev).normalized;
+                    float dist = (current - prev).magnitude;
                     Physics.RaycastNonAlloc(prev + _cellRayOffset, dir, hit, dist);
                     foreach (RaycastHit h in hit)
                     {
@@ -119,7 +131,7 @@ namespace PSB.Game
                     }
                 }
 
-                prev = c.Position;
+                prev = current;
                 first = false;
             }
 
@@ -130,8 +142,32 @@ namespace PSB.Game
         // 全てのセルを上下左右の隣接するセルに進めるかを判定
         void CheckNeighbourCell()
         {
-            // 1つのセルが4つのタイルそれぞれの一部から構成されている性質上
-            // タイルの種類からそのセルが上下左右に進めるかの判定が厳しい。
+            foreach (IReadOnlyCell cell in _dungeon.Grid)
+            {
+                foreach(Vector2Int neighbour in Direction())
+                {
+                    int nx = cell.Index.x + neighbour.x;
+                    int ny = cell.Index.y + neighbour.y;              
+                    if (!Utility.CheckInLength(_dungeon.Grid, ny, nx)) continue;
+
+                    // 1つのセルが4つのタイルそれぞれの一部から構成されている性質上
+                    // タイルの種類からそのセルが上下左右に進めるかの判定が厳しいため、レイキャストで判定する。
+                    Vector3 dir = new Vector3(neighbour.x, 0, neighbour.y);
+                    float dist = (cell.Position - _dungeon.Grid[ny, nx].Position).magnitude;
+                    if (Physics.Raycast(cell.Position + _cellRayOffset, dir, dist)) continue;
+
+                    // 隣のセルにレイキャストがヒットしなかった場合は接続されている。
+                    _dungeon.ConnectCell(cell.Index.x, cell.Index.y, nx, ny);
+                }
+            }
+
+            IEnumerable<Vector2Int> Direction()
+            {
+                yield return Vector2Int.up;
+                yield return Vector2Int.down;
+                yield return Vector2Int.left;
+                yield return Vector2Int.right;
+            }
         }
 
         // 場所の生成
@@ -145,7 +181,7 @@ namespace PSB.Game
         void OnDrawGizmos()
         {
             if (_dungeon != null) _dungeon.DrawGridOnGizmos();
-            if (_walk != null) _walk.DrawGridOnGizmos();
+            if (_walk != null) _walk.DrawGridOnGizmos(_cellSize);
         }
     }
 }

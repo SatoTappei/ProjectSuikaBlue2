@@ -9,16 +9,15 @@ namespace PSB.Game.SAW
 {
     public class SelfAvoidingWalk
     {
-        public class Cell : IReadOnlyPosition
+        public class Cell
         {
-            public Cell(int y, int x, Vector3 position)
+            public Cell(int x, int y)
             {
-                Index = new Vector2Int(y, x);
-                Position = position;
+                Index = new Vector2Int(x, y);
+                Visited = false;
             }
 
             public Vector2Int Index { get; private set; }
-            public Vector3 Position { get; private set; }
             public bool Visited { get; set; }
         }
 
@@ -30,10 +29,10 @@ namespace PSB.Game.SAW
         Vector2Int _start;
         Vector2Int _current;
 
-        public SelfAvoidingWalk(int width, int height, float cellSize, uint seed)
+        public SelfAvoidingWalk(int width, int height, uint seed)
         {
             _random = new Random(seed);
-            Create(height, width, cellSize);
+            Create(height, width);
         }
 
         /// <summary>
@@ -50,18 +49,16 @@ namespace PSB.Game.SAW
         public IReadOnlyCollection<Cell> Path => _path;
 
         // グリッドを生成
-        void Create(int height, int width, float cellSize)
+        void Create(int height, int width)
         {
             _grid = new Cell[height, width];
-            for (int i = 0; i < height; i++)
+            for (int y = 0; y < height; y++)
             {
-                for (int k = 0; k < width; k++)
+                for (int x = 0; x < width; x++)
                 {
-                    float px = i * cellSize + cellSize / 2;
-                    float py = k * cellSize + cellSize / 2;
                     // 左下が(0, 0)になっており、xz平面上のz軸方向をy、x軸方向をxにしてある。
                     // Unityのxz平面の座標系と同じ。
-                    _grid[i, k] = new(i, k, new Vector3(py, 0, px));
+                    _grid[y, x] = new Cell(x, y);
                 }
             }
         }
@@ -129,34 +126,35 @@ namespace PSB.Game.SAW
         /// <summary>
         /// グリッドをギズモに描画
         /// </summary>
-        public void DrawGridOnGizmos()
+        public void DrawGridOnGizmos(float scale)
         {
             if (_grid == null) return;
 
-            for (int i = 0; i < _grid.GetLength(0); i++)
+            for (int y = 0; y < _grid.GetLength(0); y++)
             {
-                for (int k = 0; k < _grid.GetLength(1); k++)
+                for (int x = 0; x < _grid.GetLength(1); x++)
                 {
-                    Gizmos.color = _grid[i, k].Visited ? Color.red : Color.white;
-                    Gizmos.DrawSphere(_grid[i, k].Position, GizmosDrawSize);
+                    Gizmos.color = _grid[y, x].Visited ? Color.red : Color.white;
+                    Gizmos.DrawSphere(Dungeon.IndexToPosition(x, y, scale), GizmosDrawSize);
                 }
             }
 
-            DrawStartAndGoalOnGizmos();
+            DrawStartAndGoalOnGizmos(scale);
         }
 
         // スタートとゴールの位置をギズモに描画
-        void DrawStartAndGoalOnGizmos()
+        void DrawStartAndGoalOnGizmos(float scale)
         {
             if (_path.Count == 0) return;
 
             // スタート位置
             Gizmos.color = Color.green;
-            Gizmos.DrawSphere(_grid[_start.y, _start.x].Position, GizmosDrawSize);
+            Vector3 s = Dungeon.IndexToPosition(_grid[_start.y, _start.x].Index, scale);
+            Gizmos.DrawSphere(s, GizmosDrawSize);
             // ゴール位置
-            Vector3 gp = _path.Peek().Position;
             Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(gp, GizmosDrawSize);
+            Vector3 g = Dungeon.IndexToPosition(_path.Peek().Index, scale);
+            Gizmos.DrawSphere(g, GizmosDrawSize);
         }
     }
 }

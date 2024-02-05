@@ -10,7 +10,7 @@ namespace PSB.Game
     /// <summary>
     /// Character‚ÌƒNƒ‰ƒXŠÔ‚Å’l‚ð‚â‚èŽæ‚è‚·‚é
     /// </summary>
-    public class TalkState
+    public class Talk
     {
         CharacterSettings _settings;
         StringBuilder _builder = new();
@@ -25,7 +25,7 @@ namespace PSB.Game
         ReactiveProperty<string> _gameStateJudgeResponse = new();
         int _mental;
 
-        public TalkState(CharacterSettings settings)
+        public Talk(CharacterSettings settings)
         {
             _settings = settings;
         }

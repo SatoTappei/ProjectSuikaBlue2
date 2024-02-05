@@ -12,7 +12,7 @@ namespace PSB.Game
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterComponent(_characterSettings);
-            builder.Register<TalkState>(Lifetime.Singleton);
+            builder.Register<Talk>(Lifetime.Singleton);
         }
     }
 }

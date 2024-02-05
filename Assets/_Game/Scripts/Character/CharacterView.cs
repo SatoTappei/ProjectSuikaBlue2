@@ -30,23 +30,23 @@ namespace PSB.Game
         [SerializeField] GameObject _sprite1;
         [SerializeField] GameObject _sprite2;
 
-        TalkState _talkState;
+        Talk _talk;
         CancellationTokenSource _cts;
         StringBuilder _builder = new();
         string[] _preparedLines;
         bool _isFull = true;
 
         [Inject]
-        void Construct(TalkState talkState)
+        void Construct(Talk talk)
         {
-            _talkState = talkState;
+            _talk = talk;
         }
 
         void Awake()
         {
             _fullModeText.text = "";
             _simpleModeText.text = "";
-            _talkState.CharacterLine.Skip(1).Subscribe(Print);
+            _talk.CharacterLine.Skip(1).Subscribe(Print);
             _changeButton.onClick.AddListener(Switch);
             StateChange(_isFull);
             // キャラクターを触ったら喋る

@@ -22,22 +22,22 @@ namespace PSB.Game
         [SerializeField] Text _fullModeText;
         [SerializeField] float _textFeed = 0.05f;
 
-        TalkState _talkState;
+        Talk _talk;
         CancellationTokenSource _cts;
         StringBuilder _builder = new();
         string[] _preparedLines;
         bool _isFull = true;
 
         [Inject]
-        void Construct(TalkState talkState)
+        void Construct(Talk talk)
         {
-            _talkState = talkState;
+            _talk = talk;
         }
 
         void Awake()
         {
             _fullModeText.text = "";
-            _talkState.CharacterLine.Skip(1).Subscribe(Print);
+            _talk.CharacterLine.Skip(1).Subscribe(Print);
             // キャラクターを触ったら喋る
             LoadPreparedLines();
             _touchArea.onClick.AddListener(PreparedLine);

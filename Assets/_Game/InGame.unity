@@ -669,16 +669,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tileBuilder: {fileID: 1108045844}
-  _size: 20
-  _cellSize: 2.85
-  _entry: {x: 10, y: 10}
-  _wfcSeed: 1
-  _wfcRandomSeed: 1
-  _walkSeed: 1
-  _walkRandomSeed: 1
-  _cellRayOffset: {x: 0, y: 1, z: 0}
-  _cellRayHitMax: 9
-  _stepSpeed: 0.016
+  _entityCreator: {fileID: 0}
+  _debug: 1
 --- !u!114 &1108045843
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -806,7 +798,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcf034626e1cb1d4cb5028fe842795a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _groundOffset: 1
 --- !u!114 &1421440241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -866,7 +857,11 @@ MonoBehaviour:
   parentReference:
     TypeName: 
   autoRun: 1
-  autoInjectGameObjects: []
+  autoInjectGameObjects:
+  - {fileID: 1108045838}
+  - {fileID: 1421440238}
+  _playerSettings: {fileID: 11400000, guid: a30e0d83d1761eb48b23b6fd0b12f8af, type: 2}
+  _dungeonSettings: {fileID: 11400000, guid: f1b1627eb26aecb41a2c03f639fae1a8, type: 2}
 --- !u!1 &1645363221
 GameObject:
   m_ObjectHideFlags: 0

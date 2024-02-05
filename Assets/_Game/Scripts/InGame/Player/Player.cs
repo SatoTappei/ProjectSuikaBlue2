@@ -4,14 +4,22 @@ using UnityEngine;
 using UniRx;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using VContainer;
 
 namespace PSB.Game
 {
     // このスクリプトがアタッチされたオブジェクトが移動と回転どちらも行う
     public class Player : MonoBehaviour
     {
-        [Header("地面からの高さ")]
-        [SerializeField] float _groundOffset;
+        GameState _gameState;
+        PlayerParameterSettings _settings;
+
+        [Inject]
+        void Construct(GameState gameState, PlayerParameterSettings settings)
+        {
+            _gameState = gameState;
+            _settings = settings;
+        }
 
         void Start()
         {
@@ -22,7 +30,7 @@ namespace PSB.Game
         void Init()
         {
             // 地面に立たせる
-            transform.Translate(Vector3.up * _groundOffset);
+            transform.Translate(Vector3.up * _settings.GroundOffset);
         }
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
@@ -41,12 +49,14 @@ namespace PSB.Game
                     if (msg.IsMoveKey(out KeyCode moveKey))
                     {
                         Vector3 move = moveKey.ToNormalizedDirectionVector(forward);
-                        await transform.MoveAsync(move, 0.5f, skipTokenSource.Token);
+                        float speed = _settings.MoveSpeed;
+                        await transform.MoveAsync(move, speed, skipTokenSource.Token);
                     }
                     else if (msg.IsRotateKey(out KeyCode rotKey))
                     {
                         float rot = rotKey.To90DegreeRotateAngle();
-                        await transform.RotateAsync(rot, 0.5f, skipTokenSource.Token);
+                        float speed = _settings.RotateSpeed;
+                        await transform.RotateAsync(rot, speed, skipTokenSource.Token);
                         forward = rotKey.ToTurnedDirection(forward);
                     }
                 }
@@ -54,3 +64,5 @@ namespace PSB.Game
         }
     }
 }
+
+// TODO:プレイヤーにダンジョンのSOが渡されているので、セルの大きさに合わせて移動するように変更する

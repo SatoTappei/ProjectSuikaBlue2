@@ -18,13 +18,13 @@ namespace PSB.Game
         [SerializeField] bool _useApi;
 
         IReadOnlyGameState _gameState;
-        TalkState _talkState;
+        Talk _talk;
 
         [Inject]
-        void Construct(GameState gameState, TalkState talkState)
+        void Construct(GameState gameState, Talk talk)
         {
             _gameState = gameState;
-            _talkState = talkState;
+            _talk = talk;
         }
 
         void Start()
@@ -40,7 +40,7 @@ namespace PSB.Game
             OpenAiRequest contextJudgeAi = new(_contextJudge.ToString());
             while (!token.IsCancellationRequested)
             {
-                string playerSend = _talkState.GetPlayerSend();
+                string playerSend = _talk.GetPlayerSend();
                 // キャラクターの台詞はUIに表示するだけなので待つ必要なし
                 CharacterTalkAsync(playerSend, characterAi, token).Forget();
                 // プレイヤーの入力を判定してインゲーム内の操作を決める
@@ -57,8 +57,8 @@ namespace PSB.Game
 
             string response = await character.RequestAsync(playerSend);
             // キャラクターの台詞としてセット 会話履歴に追加
-            _talkState.SetCharacterLine(response);
-            _talkState.AddLog(_talkState.Settings.LogHeader, response);
+            _talk.SetCharacterLine(response);
+            _talk.AddLog(_talk.Settings.LogHeader, response);
 
             AudioPlayer.Play(AudioKey.CharacterSendSE, AudioPlayer.PlayMode.SE);
         }
@@ -70,9 +70,9 @@ namespace PSB.Game
             if (playerSend == "") { await GameStateJudgeAsync(gameRule, token); return; }
 
             string response = await contextJudge.RequestAsync(playerSend);
-            _talkState.SetContextJudgeResponse(response);
+            _talk.SetContextJudgeResponse(response);
             // 心情を変更
-            if (int.TryParse(response, out int result)) _talkState.Mental += result;
+            if (int.TryParse(response, out int result)) _talk.Mental += result;
             // 指示(-1)と判断された場合はプレイヤーの指示に従う
             if (result == -1) await PlayerFollowAsync(playerSend, gameRule, token);
             else await GameStateJudgeAsync(gameRule, token);
@@ -83,7 +83,7 @@ namespace PSB.Game
         {
             string request = Translator.Translate(playerSend);
             string response = await gameRule.RequestAsync(request);
-            _talkState.SetPlayerFollowTalk(request, response);
+            _talk.SetPlayerFollowTalk(request, response);
             InputMessenger.SendMessage(_gameState, response);
         }
 
@@ -92,7 +92,7 @@ namespace PSB.Game
         {
             string request = Translator.Translate(_gameState);
             string response = await gameRule.RequestAsync(request);
-            _talkState.SetGameStateJudgeTalk(request, response);
+            _talk.SetGameStateJudgeTalk(request, response);
             InputMessenger.SendMessage(_gameState, response);
         }
     }

@@ -29,21 +29,21 @@ namespace PSB.Game
         [SerializeField] string _opendLetter = "<";
 
         StringBuilder _builder = new();
-        TalkState _talkState;
+        Talk _talk;
         CancellationToken _token;
         bool _isOpened;
 
         [Inject]
-        void Construct(TalkState talkState)
+        void Construct(Talk talk)
         {
-            _talkState = talkState;
+            _talk = talk;
         }
 
         void Awake()
         {
             _token = this.GetCancellationTokenOnDestroy();
             // 会話履歴が更新されたタイミングでテキストを更新
-            _talkState.AddLogObservable.Subscribe(_ => UpdateTalkHistory()).AddTo(this);
+            _talk.AddLogObservable.Subscribe(_ => UpdateTalkHistory()).AddTo(this);
             // 送信ボタンを押したもしくはEnterキーを押したら入力を決定
             this.UpdateAsObservable()
                 .Where(_ => _isOpened)
@@ -97,7 +97,7 @@ namespace PSB.Game
         void UpdateTalkHistory()
         {
             _builder.Clear();
-            foreach (string s in _talkState.Log)
+            foreach (string s in _talk.Log)
             {
                 _builder.AppendLine(s);
             }
@@ -112,8 +112,8 @@ namespace PSB.Game
 
             if (_inputField.text == "") return;
 
-            _talkState.AddPlayerSend(_inputField.text);
-            _talkState.AddLog(_logHeader, _inputField.text);
+            _talk.AddPlayerSend(_inputField.text);
+            _talk.AddLog(_logHeader, _inputField.text);
             _inputField.text = "";
         }
     }

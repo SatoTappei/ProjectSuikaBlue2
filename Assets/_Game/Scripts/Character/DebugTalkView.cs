@@ -16,39 +16,39 @@ namespace PSB.Game
         [SerializeField] Text _gameStateJudgeResponse;
         [SerializeField] Text _mental;
 
-        TalkState _talkState;
+        Talk _talk;
 
         [Inject]
-        void Construct(TalkState talkState)
+        void Construct(Talk talk)
         {
-            _talkState = talkState;
+            _talk = talk;
         }
 
         void Start()
         {
-            _talkState.ContextJudge.Skip(1).Subscribe(s => 
+            _talk.ContextJudge.Skip(1).Subscribe(s => 
             {
                 ContextJudgePrint(s);
             }).AddTo(this);
 
-            _talkState.PlayerFollowRequest.Skip(1).Subscribe(s =>
+            _talk.PlayerFollowRequest.Skip(1).Subscribe(s =>
             {
                 PlayerFollowRequestPrint(s);
                 GameStateJudgeRequestPrint("");
             }).AddTo(this);
 
-            _talkState.PlayerFollowResponse.Skip(1).Subscribe(s => 
+            _talk.PlayerFollowResponse.Skip(1).Subscribe(s => 
             {
                 PlayerFollowResponsePrint(s);
                 GameStateJudgeResponsePrint("");
                 ContextJudgePrint("");
             }).AddTo(this);
-            _talkState.GameStateJudgeRequest.Skip(1).Subscribe(s => 
+            _talk.GameStateJudgeRequest.Skip(1).Subscribe(s => 
             {
                 GameStateJudgeRequestPrint(s);
                 PlayerFollowRequestPrint("");
             }).AddTo(this);
-            _talkState.GameStateJudgeResponse.Skip(1).Subscribe(s => 
+            _talk.GameStateJudgeResponse.Skip(1).Subscribe(s => 
             {
                 GameStateJudgeResponsePrint(s);
                 PlayerFollowResponsePrint("");

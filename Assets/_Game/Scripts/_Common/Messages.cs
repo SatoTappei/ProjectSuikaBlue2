@@ -18,4 +18,6 @@ namespace PSB.Game
         public bool KeyDownW;
         public bool KeyDownSpace;
     }
+
+    public struct DungeonBuildCompletedMessage { }
 }

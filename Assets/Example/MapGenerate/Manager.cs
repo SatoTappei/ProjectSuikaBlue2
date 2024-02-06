@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using System.Threading;
-using PSB.Game; // OpenAIへのリクエスト用
+//using PSB.Game; // OpenAIへのリクエスト用
 
 namespace PSB.MapGenerate
 {
@@ -40,12 +40,12 @@ namespace PSB.MapGenerate
             {
                 using (CancellationTokenSource cts = new())
                 {
-                    OpenAiRequest ai = new(_rule.ToString());
-                    string response = await ai.RequestAsync("生成してください");
+                    //OpenAiRequest ai = new(_rule.ToString());
+                    //string response = await ai.RequestAsync("生成してください");
 
-                    if (cts.IsCancellationRequested) return;
-                    Debug.Log(response);
-                    Generate(Split(response));
+                    //if (cts.IsCancellationRequested) return;
+                    //Debug.Log(response);
+                    //Generate(Split(response));
                 }
             }
         }

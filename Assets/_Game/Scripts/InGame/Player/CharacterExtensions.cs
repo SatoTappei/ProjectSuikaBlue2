@@ -55,5 +55,29 @@ namespace PSB.Game
 
             t.eulerAngles = to;
         }
+
+        /// <summary>
+        /// ジャンプ(設置判定が作りかけなので正常に動作しない)
+        /// </summary>
+        public static async UniTask JumpAsync(this Rigidbody rb, Vector2Int input, CancellationToken token,
+            float horizontalPower, float verticalPower, float interval)
+        {
+            Vector3 force = Vector3.up * verticalPower + Vector3.right * input.x * horizontalPower;
+            rb.AddForce(force, ForceMode.Impulse);
+
+            // ジャンプ中に横方向に力を加え続けることで、段差に引っかかっても乗り越えることが出来る。
+            for (float f = 0; f < interval; f += Time.fixedDeltaTime)
+            {
+                Vector3 velo = rb.velocity;
+                velo.x = input.x * horizontalPower;
+                rb.velocity = velo;
+                // ジャンプした次のフレームではレイキャストが地面から離れないので、判定までのクールタイムを設ける。
+                await UniTask.Yield(PlayerLoopTiming.FixedUpdate, cancellationToken: token);
+            }
+
+            //await UniTask.WaitUntil(IsGrounding, cancellationToken: token);
+        }
     }
 }
+
+// 優先:スキップのトークンだけ渡しているので回転中にエディター止めるとアクセスできないエラーが出る。

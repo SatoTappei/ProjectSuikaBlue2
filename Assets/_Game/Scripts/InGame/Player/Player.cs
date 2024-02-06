@@ -5,8 +5,8 @@ using UniRx;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using VContainer;
-using static PSB.GameExample.Player;
 using System.Globalization;
+using YamlDotNet.Serialization;
 
 namespace PSB.Game
 {
@@ -85,6 +85,11 @@ namespace PSB.Game
             // 移動先があるかチェック
             if (!_dungeonManager.TryGetMovablePosition(_currentIndex, neighbour, out Vector3 target)) return;
 
+            // 音を再生
+            AudioPlayer.PlayLoop(this, _settings.WalkSeLoop, _settings.WalkSeDelay, 
+                AudioKey.WalkStepSE, AudioPlayer.PlayMode.SE);
+
+            // 高さのオフセットを足した移動量を移動
             Vector3 move = target + _settings.GroundOffset - transform.position;
             float speed = _settings.MoveSpeed;
             await transform.MoveAsync(move, speed, skipToken);

@@ -54,6 +54,7 @@ namespace PSB.Game
         CharacterSendSE, // キャラクターが送信した
         TabOpenCloseSE, // チャットウィンドウの開閉
         CharacterTouchSE, // キャラクターをタッチした
+        WalkStepSE,
     }
 
     /// <summary>

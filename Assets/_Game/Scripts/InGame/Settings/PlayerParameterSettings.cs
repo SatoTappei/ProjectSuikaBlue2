@@ -13,6 +13,9 @@ namespace PSB.Game
         [SerializeField] float _moveSpeed = 0.5f;
         [Header("振り向き速度")]
         [SerializeField] float _rotateSpeed = 0.5f;
+        [Header("歩く際になる音の設定")]
+        [SerializeField] int _walkSeLoop = 2;
+        [SerializeField] float _walkSeDelay = 0.25f;
 
         /// <summary>
         /// 地面からの高さ
@@ -26,5 +29,13 @@ namespace PSB.Game
         /// 振り向き速度
         /// </summary>
         public float RotateSpeed => _rotateSpeed;
+        /// <summary>
+        /// 歩く際に鳴る音の回数
+        /// </summary>
+        public int WalkSeLoop => _walkSeLoop;
+        /// <summary>
+        /// 歩く際に鳴る音のディレイ
+        /// </summary>
+        public float WalkSeDelay => _walkSeDelay;
     }
 }

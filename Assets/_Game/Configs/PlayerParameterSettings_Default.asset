@@ -15,3 +15,5 @@ MonoBehaviour:
   _groundOffset: 1
   _moveSpeed: 0.5
   _rotateSpeed: 0.5
+  _walkSeLoop: 2
+  _walkSeDelay: 0.25

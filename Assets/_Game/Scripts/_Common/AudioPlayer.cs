@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UniRx;
+using UnityEngine.SceneManagement;
 
 namespace PSB.Game
 {
+    /// <summary>
+    /// 自身へのメッセージングとstaticなフラグでインスタンスの有無を管理することにより
+    /// 複数シーンを読み込んで使う場合にシングルトンのような振る舞いをする。
+    /// </summary>
     public class AudioPlayer : MonoBehaviour
     {
         #region 自身にメッセージングする用
@@ -27,6 +32,9 @@ namespace PSB.Game
         // 同時再生出来る最大数
         const int Max = 10;
 
+        // シングルトン的な使い方するためのフラグ
+        static bool _first = true;
+
         [System.Serializable]
         class Data
         {
@@ -37,12 +45,24 @@ namespace PSB.Game
         }
 
         [SerializeField] Data[] _data;
+        [Header("複数シーンで再生した際に一緒に削除する")]
+        [SerializeField] AudioListener _audioListener;
 
         Dictionary<AudioKey, Data> _table;
         AudioSource[] _sources = new AudioSource[Max];
 
         void Awake()
         {
+            // シングルトン風なチェック
+            if (_first) _first = false;
+            else
+            {
+                // 警告が出るのでListenerもついでに無効化しておく
+                if (_audioListener != null) _audioListener.enabled = false;
+                gameObject.SetActive(false);
+                return;
+            }
+
             // AudioSourceをたくさん追加
             for (int i = 0; i < _sources.Length; i++)
             {
@@ -53,8 +73,15 @@ namespace PSB.Game
             _table = _data.ToDictionary(v => v.Key, v => v);
 
             // 自身に送信したメッセージを受信して再生/停止
-            MessageBroker.Default.Receive<PlayMessage>().Subscribe(Play).AddTo(this);
-            MessageBroker.Default.Receive<StopMessage>().Subscribe(StopBGM).AddTo(this);
+            MessageBroker.Default.Receive<PlayMessage>()
+                .Where(_ => gameObject.activeSelf).Subscribe(Play).AddTo(this);
+            MessageBroker.Default.Receive<StopMessage>()
+                .Where(_ => gameObject.activeSelf).Subscribe(StopBGM).AddTo(this);
+        }
+
+        void OnDestroy()
+        {
+            _first = true;
         }
 
         void Play(PlayMessage msg)
@@ -92,7 +119,28 @@ namespace PSB.Game
         /// </summary>
         public static void Play(AudioKey key, PlayMode mode)
         {
-            MessageBroker.Default.Publish(new PlayMessage() { Key = key, Mode = mode });
+            MessageBroker.Default.Publish(new PlayMessage() 
+            {
+                Key = key, 
+                Mode = mode,
+            });
+        }
+
+        /// <summary>
+        /// 繰り返し音を再生
+        /// </summary>
+        public static void PlayLoop(MonoBehaviour mono, int count, float delay, AudioKey key, PlayMode mode)
+        {
+            mono.StartCoroutine(M());
+
+            IEnumerator M()
+            {
+                for(int i = 0; i < count; i++)
+                {
+                    Play(key, mode);
+                    yield return new WaitForSeconds(delay);
+                }
+            }
         }
 
         /// <summary>

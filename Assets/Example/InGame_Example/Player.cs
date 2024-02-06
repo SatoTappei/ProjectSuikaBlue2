@@ -85,8 +85,8 @@ namespace PSB.GameExample
         {
             _body.forward = new Vector3(input.x, 0, input.y);
 
-            if (input == Vector2Int.left) _gameState.Forward = Forward.Left;
-            else if (input == Vector2Int.right) _gameState.Forward = Forward.Right;
+            //if (input == Vector2Int.left) _gameState.Forward = Forward.Left;
+            //else if (input == Vector2Int.right) _gameState.Forward = Forward.Right;
         }
 
         // 方向に飛ぶ
@@ -156,7 +156,7 @@ namespace PSB.GameExample
             //_gameState.OnStepFront = Physics.Raycast(_kness.position, _eye.forward,
             //    _stepFrontRaycastLength, Const.FootingLayer);
 
-            Debug.Log("ステージの端:" + _gameState.OnStageBorder);
+            //Debug.Log("ステージの端:" + _gameState.OnStageBorder);
         }
 
         /// <summary>

@@ -72,12 +72,24 @@ namespace PSB.Game
         }
 
         /// <summary>
-        /// 2つのセル同士を繋げる
+        /// 無向グラフとして2つのセル同士を繋げる
         /// </summary>
-        public void ConnectCell(int x1, int y1, int x2, int y2)
+        public void Connect(int x1, int y1, int x2, int y2)
         {
             _grid[y1, x1].Adjacent.Add(_grid[y2, x2]);
             _grid[y2, x2].Adjacent.Add(_grid[y1, x1]);
+        }
+
+        /// <summary>
+        /// 2つのセル同士が接続されているか
+        /// </summary>
+        public bool IsConnected(int x1, int y1, int x2, int y2)
+        {
+            if (!Utility.CheckInLength(_grid, x1, y1)) return false;
+            if (!Utility.CheckInLength(_grid, x2, y2)) return false;
+
+            // 無効グラフなので片方調べればよい
+            return _grid[y1, x1].Adjacent.Contains(_grid[y2, x2]);
         }
 
         // 隣接リストをギズモに描画

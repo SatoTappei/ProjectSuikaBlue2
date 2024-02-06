@@ -5,14 +5,20 @@ using UniRx;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using VContainer;
+using static PSB.GameExample.Player;
+using System.Globalization;
 
 namespace PSB.Game
 {
     // このスクリプトがアタッチされたオブジェクトが移動と回転どちらも行う
     public class Player : MonoBehaviour
     {
+        [SerializeField] DungeonManager _dungeonManager;
+
         GameState _gameState;
         PlayerParameterSettings _settings;
+        Vector2Int _currentIndex;
+        Direction _forward;
 
         [Inject]
         void Construct(GameState gameState, PlayerParameterSettings settings)
@@ -23,46 +29,77 @@ namespace PSB.Game
 
         void Start()
         {
+            FlowAsync(this.GetCancellationTokenOnDestroy()).Forget();
+        }
+
+        // ゲーム開始から操作終了までの一連の流れ
+        async UniTaskVoid FlowAsync(CancellationToken token)
+        {
             Init();
-            UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
+
+            // 準備完了のメッセージを受信するまで操作させない
+            await MessageAwaiter.ReceiveAsync<InGameReadyMessage>(token);
+
+            await UpdateAsync(token);
         }
 
         void Init()
         {
-            // 地面に立たせる
-            transform.Translate(Vector3.up * _settings.GroundOffset);
+            // ダンジョンの入口が初期位置
+            transform.position = _dungeonManager.StartPosition();
+            transform.Translate(_settings.GroundOffset);
+            _currentIndex = _dungeonManager.StartIndex();
+
+            // 回転が0の状態は北向き
+            _forward = Direction.North;
         }
 
-        async UniTaskVoid UpdateAsync(CancellationToken token)
+        async UniTask UpdateAsync(CancellationToken token)
         {
-            Direction forward = Direction.North;
-            Transform transform = this.transform;
             while (!token.IsCancellationRequested)
             {
+                // キャンセル時に行動がスキップされる
                 using (CancellationTokenSource skipTokenSource = new())
                 {
                     // 入力のメッセージが飛んでくるまで待機
-                    KeyInputMessage msg = await MessageBroker.Default
-                        .Receive<KeyInputMessage>().ToUniTask(useFirstValue: true, token);
+                    KeyInputMessage msg = await MessageAwaiter.ReceiveAsync<KeyInputMessage>(token);
 
                     // 移動もしくは回転
                     if (msg.IsMoveKey(out KeyCode moveKey))
                     {
-                        Vector3 move = moveKey.ToNormalizedDirectionVector(forward);
-                        float speed = _settings.MoveSpeed;
-                        await transform.MoveAsync(move, speed, skipTokenSource.Token);
+                        await MoveAsync(moveKey, skipTokenSource.Token);
                     }
                     else if (msg.IsRotateKey(out KeyCode rotKey))
                     {
-                        float rot = rotKey.To90DegreeRotateAngle();
-                        float speed = _settings.RotateSpeed;
-                        await transform.RotateAsync(rot, speed, skipTokenSource.Token);
-                        forward = rotKey.ToTurnedDirection(forward);
+                        await RotateAsync(rotKey, skipTokenSource.Token);
                     }
                 }
             }
         }
+
+        // 移動
+        async UniTask MoveAsync(KeyCode key, CancellationToken skipToken)
+        {
+            // 前後移動のキーか判定、向きに応じた隣のセルを指す方向を取得
+            if (!key.TryGetFrontAndBackIndexDirection(_forward, out Vector2Int neighbour)) return;
+            // 移動先があるかチェック
+            if (!_dungeonManager.TryGetMovablePosition(_currentIndex, neighbour, out Vector3 target)) return;
+
+            Vector3 move = target + _settings.GroundOffset - transform.position;
+            float speed = _settings.MoveSpeed;
+            await transform.MoveAsync(move, speed, skipToken);
+
+            _currentIndex += neighbour;
+        }
+
+        // 回転
+        async UniTask RotateAsync(KeyCode key, CancellationToken skipToken)
+        {
+            float rot = key.To90DegreeRotateAngle();
+            float speed = _settings.RotateSpeed;
+            await transform.RotateAsync(rot, speed, skipToken);
+            
+            _forward = key.ToTurnedDirection(_forward);
+        }
     }
 }
-
-// TODO:プレイヤーにダンジョンのSOが渡されているので、セルの大きさに合わせて移動するように変更する

@@ -12,12 +12,12 @@ namespace PSB.Game
         public static string Translate(IReadOnlyGameState gameState)
         {
             string request = string.Empty;
-            if (gameState.OnStageBorder) request += "これ以上進むとステージから落ちてしまうかもしれません。";
-            if (gameState.OnHoleFront) request += "目の前にはジャンプで飛び越えられる穴があります。";
-            if (gameState.OnStepFront) request += "目の前にはジャンプで飛び越えられる段差があります。";
-            if (!(gameState.OnStageBorder ||
-                  gameState.OnHoleFront ||
-                  gameState.OnStepFront)) request += "直進できる道が続いています。";
+            //if (gameState.OnStageBorder) request += "これ以上進むとステージから落ちてしまうかもしれません。";
+            //if (gameState.OnHoleFront) request += "目の前にはジャンプで飛び越えられる穴があります。";
+            //if (gameState.OnStepFront) request += "目の前にはジャンプで飛び越えられる段差があります。";
+            //if (!(gameState.OnStageBorder ||
+            //      gameState.OnHoleFront ||
+            //      gameState.OnStepFront)) request += "直進できる道が続いています。";
 
             request += "あなたはどの方向に進みますか？";
 

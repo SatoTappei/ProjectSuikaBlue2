@@ -18,13 +18,15 @@ namespace PSB.Game
         [Header("デバッグ用:ダンジョンのみで動作")]
         [SerializeField] bool _debug = true;
 
+        GameState _gameState;
         Dungeon _dungeon;
         SelfAvoidingWalk _walk;
         DungeonParameterSettings _settings;
-
+        
         [Inject]
-        void Construct(DungeonParameterSettings settings)
+        void Construct(GameState gameState, DungeonParameterSettings settings)
         {
+            _gameState = gameState;
             _settings = settings;
         }
 
@@ -58,14 +60,13 @@ namespace PSB.Game
         /// <summary>
         /// ダンジョンの生成
         /// </summary>
-        public async UniTaskVoid BuildAsync(CancellationToken token)
+        public async UniTask BuildAsync(CancellationToken token)
         {
             await BuildDungeonBaseAsync(token);
             await CreatePathAsync(token);
             RemoveWallOnPath();
             CheckNeighbourCell();
             CreateLocation();
-
             // ダンジョン生成に使うクラスは完成したらメモリを解放しても良いかもしれない
         }
 
@@ -154,7 +155,7 @@ namespace PSB.Game
                     if (Physics.Raycast(origin, dir, dist)) continue;
 
                     // 隣のセルにレイキャストがヒットしなかった場合は接続されている。
-                    _dungeon.ConnectCell(cell.Index.x, cell.Index.y, nx, ny);
+                    _dungeon.Connect(cell.Index.x, cell.Index.y, nx, ny);
                 }
             }
 
@@ -173,6 +174,36 @@ namespace PSB.Game
             // 経路の端にスタートとゴール
             //Vector3 s = new Vector3(_entry)
             //_entityCreator.Location(LocationKey.Start,)
+        }
+
+        /// <summary>
+        /// ダンジョンのスタート位置を返す。
+        /// この位置から必ずゴールにたどり着く事が出来る。
+        /// </summary>
+        public Vector3 StartPosition() => Dungeon.IndexToPosition(_settings.Entry, _settings.CellSize);
+
+        /// <summary>
+        /// ダンジョンのスタート位置のインデックスを返す。
+        /// この位置から必ずゴールにたどり着く事が出来る。
+        /// </summary>
+        public Vector2Int StartIndex() => _settings.Entry;
+
+        /// <summary>
+        /// 移動可能かをチェックし、可能な場合は移動先を返す
+        /// </summary>
+        public bool TryGetMovablePosition(Vector2Int origin, Vector2Int direction, out Vector3 position)
+        {
+            // 上下左右の単位ベクトルに制限していないので2セル以上の移動も可能
+            Vector2Int n = origin + direction;
+            
+            if (_dungeon.IsConnected(origin.x, origin.y, n.x, n.y))
+            {
+                position = _dungeon.Grid[n.y, n.x].Position;
+                return true;
+            }
+
+            position = _dungeon.Grid[origin.y, origin.x].Position;
+            return false;
         }
 
         void OnDrawGizmos()

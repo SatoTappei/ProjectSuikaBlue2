@@ -80,5 +80,29 @@ namespace PSB.Game
                     throw new System.ArgumentException("回転の入力を行うキーではない: " + key);
             }
         }
+
+        /// <summary>
+        /// 前後移動をする際のキーと向きに応じた、前もしくは後ろの添え字を指す向きを返す
+        /// </summary>
+        public static bool TryGetFrontAndBackIndexDirection(this KeyCode key, Direction current, out Vector2Int direction)
+        {
+            if (key == KeyCode.W)
+            {
+                if (current == Direction.East) { direction = Vector2Int.right; return true; }
+                if (current == Direction.West) { direction = Vector2Int.left; return true; }
+                if (current == Direction.North) { direction = Vector2Int.up; return true; }
+                if (current == Direction.South) { direction = Vector2Int.down; return true; }
+            }
+            if (key == KeyCode.S)
+            {
+                if (current == Direction.East) { direction = Vector2Int.left; return true; }
+                if (current == Direction.West) { direction = Vector2Int.right; return true; }
+                if (current == Direction.North) { direction = Vector2Int.down; return true; }
+                if (current == Direction.South) { direction = Vector2Int.up; return true; }
+            }
+
+            direction = default;
+            return false;
+        }
     }
 }

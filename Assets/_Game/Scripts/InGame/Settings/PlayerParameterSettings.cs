@@ -17,7 +17,7 @@ namespace PSB.Game
         /// <summary>
         /// ’n–Ê‚©‚ç‚Ì‚‚³
         /// </summary>
-        public float GroundOffset => _groundOffset;
+        public Vector3 GroundOffset => Vector3.up * _groundOffset;
         /// <summary>
         /// ˆÚ“®‘¬“x
         /// </summary>

@@ -18,8 +18,8 @@ namespace PSB.Game
             if (command == "2") msg.KeyDownD = true;
             if (command == "3")
             {
-                if (gameState.Forward == GameExample.Player.Forward.Left) msg.KeyDownA = true;
-                else if (gameState.Forward == GameExample.Player.Forward.Right) msg.KeyDownD = true;
+                //if (gameState.Forward == GameExample.Player.Forward.Left) msg.KeyDownA = true;
+                //else if (gameState.Forward == GameExample.Player.Forward.Right) msg.KeyDownD = true;
 
                 msg.KeyDownSpace = true;
             }

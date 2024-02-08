@@ -76,6 +76,11 @@ namespace PSB.Game.SAW
         }
 
         /// <summary>
+        /// 開始座標をセット
+        /// </summary>
+        public void SetStartPoint(Vector2Int index) => SetStartPoint(index.y, index.x);
+
+        /// <summary>
         /// 1回分進めて、これ以上進めるかどうかを返す。
         /// </summary>
         public bool Step()

@@ -7,24 +7,25 @@ using System.Threading;
 using VContainer;
 using System.Globalization;
 using YamlDotNet.Serialization;
+using Unity.VisualScripting;
 
 namespace PSB.Game
 {
     // このスクリプトがアタッチされたオブジェクトが移動と回転どちらも行う
     public class Player : MonoBehaviour
     {
-        [SerializeField] DungeonManager _dungeonManager;
-
         GameState _gameState;
         PlayerParameterSettings _settings;
+        DungeonManager _dungeonManager;
         Vector2Int _currentIndex;
         Direction _forward;
 
         [Inject]
-        void Construct(GameState gameState, PlayerParameterSettings settings)
+        void Construct(GameState gameState, PlayerParameterSettings settings, DungeonManager dungeonManager)
         {
             _gameState = gameState;
             _settings = settings;
+            _dungeonManager = dungeonManager;
         }
 
         void Start()
@@ -45,12 +46,21 @@ namespace PSB.Game
 
         void Init()
         {
+            // 当たり判定用に使う用に設定
+            Rigidbody rb = GetComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.mass = 0;
+            rb.angularDrag = 0;
+
             // ダンジョンの入口が初期位置
             transform.position = _dungeonManager.StartPosition();
             transform.Translate(_settings.GroundOffset);
             _currentIndex = _dungeonManager.StartIndex();
+            _gameState.CurrentIndex = _currentIndex;
 
             // 回転が0の状態は北向き
+            transform.rotation = Quaternion.identity;
             _forward = Direction.North;
         }
 
@@ -58,27 +68,26 @@ namespace PSB.Game
         {
             while (!token.IsCancellationRequested)
             {
-                // キャンセル時に行動がスキップされる
-                using (CancellationTokenSource skipTokenSource = new())
-                {
-                    // 入力のメッセージが飛んでくるまで待機
-                    KeyInputMessage msg = await MessageAwaiter.ReceiveAsync<KeyInputMessage>(token);
+                // 入力のメッセージが飛んでくるまで待機
+                KeyInputMessage msg = await MessageAwaiter.ReceiveAsync<KeyInputMessage>(token);
 
-                    // 移動もしくは回転
-                    if (msg.IsMoveKey(out KeyCode moveKey))
-                    {
-                        await MoveAsync(moveKey, skipTokenSource.Token);
-                    }
-                    else if (msg.IsRotateKey(out KeyCode rotKey))
-                    {
-                        await RotateAsync(rotKey, skipTokenSource.Token);
-                    }
+                // 移動もしくは回転
+                if (msg.IsMoveKey(out KeyCode moveKey))
+                {
+                    await MoveAsync(moveKey, token);
                 }
+                else if (msg.IsRotateKey(out KeyCode rotKey))
+                {
+                    await RotateAsync(rotKey, token);
+                }
+
+                // 行動結果
+                ActionResult();
             }
         }
 
         // 移動
-        async UniTask MoveAsync(KeyCode key, CancellationToken skipToken)
+        async UniTask MoveAsync(KeyCode key, CancellationToken token)
         {
             // 前後移動のキーか判定、向きに応じた隣のセルを指す方向を取得
             if (!key.TryGetFrontAndBackIndexDirection(_forward, out Vector2Int neighbour)) return;
@@ -92,19 +101,32 @@ namespace PSB.Game
             // 高さのオフセットを足した移動量を移動
             Vector3 move = target + _settings.GroundOffset - transform.position;
             float speed = _settings.MoveSpeed;
-            await transform.MoveAsync(move, speed, skipToken);
+            await transform.MoveAsync(move, speed, token);
 
             _currentIndex += neighbour;
+            _gameState.CurrentIndex = _currentIndex;
         }
 
         // 回転
-        async UniTask RotateAsync(KeyCode key, CancellationToken skipToken)
+        async UniTask RotateAsync(KeyCode key, CancellationToken token)
         {
             float rot = key.To90DegreeRotateAngle();
             float speed = _settings.RotateSpeed;
-            await transform.RotateAsync(rot, speed, skipToken);
+            await transform.RotateAsync(rot, speed, token);
             
             _forward = key.ToTurnedDirection(_forward);
+        }
+
+        // 行動した結果どうなったか
+        void ActionResult()
+        {
+            // 現在位置が宝箱なら獲得
+            LocationKey location = _dungeonManager.GetLocation(_currentIndex);
+            Debug.Log("ここは" + location);
+            if (location == LocationKey.Chest)
+            {
+                _gameState.IsGetTreasure = true;
+            }
         }
     }
 }

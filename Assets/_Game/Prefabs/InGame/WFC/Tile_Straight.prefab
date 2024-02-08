@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wall_Stone_Normal (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 1784612528550548, guid: 2d0f20d11945dcf40bc89cbe6339221c, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 4315287027980304, guid: 2d0f20d11945dcf40bc89cbe6339221c, type: 3}
       propertyPath: m_LocalScale.y
       value: 2
@@ -130,6 +134,10 @@ PrefabInstance:
     - target: {fileID: 1048753352154994, guid: 296fc91a20f2cfe4c97182c3c87b9aca, type: 3}
       propertyPath: m_Name
       value: Pillar_Stone
+      objectReference: {fileID: 0}
+    - target: {fileID: 1048753352154994, guid: 296fc91a20f2cfe4c97182c3c87b9aca, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1048753352154994, guid: 296fc91a20f2cfe4c97182c3c87b9aca, type: 3}
       propertyPath: m_IsActive
@@ -281,10 +289,20 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.67
       objectReference: {fileID: 0}
+    - target: {fileID: 5249739425991696084, guid: 7b70db6a9c1c43b458f5a0faa86f42b3,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8994509809215460978, guid: 7b70db6a9c1c43b458f5a0faa86f42b3,
         type: 3}
       propertyPath: m_Name
       value: Tile_Straight
+      objectReference: {fileID: 0}
+    - target: {fileID: 8994509809215460978, guid: 7b70db6a9c1c43b458f5a0faa86f42b3,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

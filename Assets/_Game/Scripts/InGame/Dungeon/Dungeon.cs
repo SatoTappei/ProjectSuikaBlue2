@@ -71,6 +71,19 @@ namespace PSB.Game
             DrawAdjacentOnGizmos();
         }
 
+        // 隣接リストをギズモに描画
+        void DrawAdjacentOnGizmos()
+        {
+            Gizmos.color = Color.red;
+            foreach (Cell c in _grid)
+            {
+                foreach (IReadOnlyCell d in c.Adjacent)
+                {
+                    Gizmos.DrawLine(c.Position, d.Position);
+                }
+            }
+        }
+
         /// <summary>
         /// 無向グラフとして2つのセル同士を繋げる
         /// </summary>
@@ -79,6 +92,11 @@ namespace PSB.Game
             _grid[y1, x1].Adjacent.Add(_grid[y2, x2]);
             _grid[y2, x2].Adjacent.Add(_grid[y1, x1]);
         }
+
+        /// <summary>
+        /// 無向グラフとして2つのセル同士を繋げる
+        /// </summary>
+        public void Connect(Vector2Int a, Vector2Int b) => Connect(a.x, a.y, b.x, b.y);
 
         /// <summary>
         /// 2つのセル同士が接続されているか
@@ -92,18 +110,45 @@ namespace PSB.Game
             return _grid[y1, x1].Adjacent.Contains(_grid[y2, x2]);
         }
 
-        // 隣接リストをギズモに描画
-        void DrawAdjacentOnGizmos()
-        {
-            Gizmos.color = Color.red;
-            foreach (Cell c in _grid)
-            {
-                foreach(IReadOnlyCell d in c.Adjacent)
-                {
-                    Gizmos.DrawLine(c.Position, d.Position);
-                }
-            }
-        }
+        /// <summary>
+        /// 2つのセル同士が接続されているか
+        /// </summary>
+        public bool IsConnected(Vector2Int a, Vector2Int b) => IsConnected(a.x, a.y, b.x, b.y);
+
+        /// <summary>
+        /// セルの位置
+        /// </summary>
+        public Vector3 Position(Vector2Int index) => _grid[index.y, index.x].Position;
+
+        /// <summary>
+        /// セルがどのような場所なのかを決めるキーをセット
+        /// </summary>
+        public void SetLocation(Vector2Int index, LocationKey key) => _grid[index.y, index.x].Location = key;
+
+        /// <summary>
+        /// セルにあるアイテムを判定するためのキーをセット
+        /// </summary>
+        public void SetItem(Vector2Int index, ItemKey key) => _grid[index.y, index.x].Item = key;
+
+        /// <summary>
+        /// セルにいるキャラクターを判定するためのキーを返す
+        /// </summary>
+        public void SetCharacter(Vector2Int index, CharacterKey key) => _grid[index.y, index.x].Character = key;
+
+        /// <summary>
+        /// セルがどのような場所なのかを決めるキーを返す
+        /// </summary>
+        public LocationKey GetLocation(Vector2Int index) => _grid[index.y, index.x].Location;
+
+        /// <summary>
+        /// セルにあるアイテムを判定するためのキーを返す
+        /// </summary>
+        public ItemKey GetItem(Vector2Int index) => _grid[index.y, index.x].Item;
+
+        /// <summary>
+        /// セルにいるキャラクターを判定するためのキーを返す
+        /// </summary>
+        public CharacterKey GetCharacter(Vector2Int index) => _grid[index.y, index.x].Character;
 
         /// <summary>
         /// 添え字を座標に変換

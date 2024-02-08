@@ -26,7 +26,7 @@ namespace PSB.Game
     {
         Normal,
         Start,
-        Goal,
+        Chest,
     }
 
     /// <summary>
@@ -66,3 +66,6 @@ namespace PSB.Game
         SimpleNotice, // シンプル状態でキャラクターが喋る
     }
 }
+
+// スタートとゴールの配置＆アニメーション付け
+// ゴールにたどり着いたらゲームクリアにする

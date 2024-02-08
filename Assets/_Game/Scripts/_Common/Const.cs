@@ -18,5 +18,13 @@ namespace PSB.Game
         /// キャラクターとの会話シーン名
         /// </summary>
         public const string CharacterSceneName = "Character3D";
+        /// <summary>
+        /// インゲーム内のプレイヤーのタグ
+        /// </summary>
+        public const string PlayerTag = "Player";
+        /// <summary>
+        /// ダンジョンの壁など判定があるオブジェクトのレイヤー
+        /// </summary>
+        public static readonly int DungeonLayer = 1 << LayerMask.NameToLayer("Dungeon");
     }
 }

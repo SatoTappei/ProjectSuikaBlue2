@@ -23,6 +23,11 @@ PrefabInstance:
       propertyPath: m_LocalPosition.x
       value: 0.67
       objectReference: {fileID: 0}
+    - target: {fileID: 5303068422108500939, guid: 449cc7cbc46f9374e89b620e9d5e1f48,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5896132668020367238, guid: 449cc7cbc46f9374e89b620e9d5e1f48,
         type: 3}
       propertyPath: m_LocalScale.y
@@ -42,6 +47,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.67
+      objectReference: {fileID: 0}
+    - target: {fileID: 5898104518416364802, guid: 449cc7cbc46f9374e89b620e9d5e1f48,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6266137472771853697, guid: 449cc7cbc46f9374e89b620e9d5e1f48,
         type: 3}
@@ -97,6 +107,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Tile_Corner
+      objectReference: {fileID: 0}
+    - target: {fileID: 6804231546410300249, guid: 449cc7cbc46f9374e89b620e9d5e1f48,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -162,6 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa5222a90901c0c42a15115a5e9f9ebf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _pillar: {fileID: 0}
 --- !u!4 &6027134325659217842 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6266137472771853697, guid: 449cc7cbc46f9374e89b620e9d5e1f48,
@@ -207,6 +223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa5222a90901c0c42a15115a5e9f9ebf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _pillar: {fileID: 0}
 --- !u!1001 &4336101947945022551
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -218,6 +235,10 @@ PrefabInstance:
     - target: {fileID: 1048753352154994, guid: 296fc91a20f2cfe4c97182c3c87b9aca, type: 3}
       propertyPath: m_Name
       value: Pillar_Stone
+      objectReference: {fileID: 0}
+    - target: {fileID: 1048753352154994, guid: 296fc91a20f2cfe4c97182c3c87b9aca, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4248846288640394, guid: 296fc91a20f2cfe4c97182c3c87b9aca, type: 3}
       propertyPath: m_LocalScale.x

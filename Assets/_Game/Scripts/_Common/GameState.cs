@@ -9,6 +9,21 @@ namespace PSB.Game
     /// </summary>
     public class GameState : IReadOnlyGameState
     {
-
+        /// <summary>
+        /// 開始位置
+        /// </summary>
+        public Vector2Int StartIndex { get; set; }
+        /// <summary>
+        /// 現在位置
+        /// </summary>
+        public Vector2Int CurrentIndex { get; set; }
+        /// <summary>
+        /// 宝を入手済み
+        /// </summary>
+        public bool IsGetTreasure { get; set; }
+        /// <summary>
+        /// 入口にいる
+        /// </summary>
+        public bool IsStandingAtEntrance => CurrentIndex == StartIndex;
     }
 }

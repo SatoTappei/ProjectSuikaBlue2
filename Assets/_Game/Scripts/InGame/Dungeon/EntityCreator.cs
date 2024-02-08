@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace PSB.Game
 {
@@ -25,7 +27,7 @@ namespace PSB.Game
         Dictionary<ItemKey, GameObject> _items = new();
         Dictionary<CharacterKey, GameObject> _characters = new();
 
-        void Start()
+        void Awake()
         {
             _locations = _locationData.ToDictionary(d => d.Key, d => d.Prefab);
             _items = _itemData.ToDictionary(d => d.Key, d => d.Prefab);

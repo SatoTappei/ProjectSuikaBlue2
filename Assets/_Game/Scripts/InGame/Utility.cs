@@ -16,6 +16,14 @@ namespace PSB.Game
         }
 
         /// <summary>
+        /// ˆø”‚Ì“Y‚¦š‚ª”z—ñ‚Ì”ÍˆÍ“à‚©‚Ç‚¤‚©‚ğ’²‚×‚é
+        /// </summary>
+        public static bool CheckInLength<T>(T[,] array, Vector2Int index)
+        {
+            return CheckInLength(array, index.y, index.x);
+        }
+
+        /// <summary>
         /// ã‰º¶‰E‚ğƒ‰ƒ“ƒ_ƒ€‚È‡”Ô‚Å•Ô‚·
         /// </summary>
         public static IEnumerable<Vector2Int> RandomDirection(uint seed)

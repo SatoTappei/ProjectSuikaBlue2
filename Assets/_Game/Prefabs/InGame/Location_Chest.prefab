@@ -82,6 +82,9 @@ MonoBehaviour:
   _fbx: {fileID: 1671676220946733184}
   _effect: {fileID: 3975890051667041113}
   _collider: {fileID: -1652212924256934528}
+  _cover: {fileID: 7619399284276757297}
+  _openAngle: -110
+  _duration: 0.33
 --- !u!135 &-1652212924256934528
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -171,6 +174,22 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4775600230968584, guid: 9acd60bc8ae6a884c88aa0334f2026e9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4775600230968584, guid: 9acd60bc8ae6a884c88aa0334f2026e9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4775600230968584, guid: 9acd60bc8ae6a884c88aa0334f2026e9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4775600230968584, guid: 9acd60bc8ae6a884c88aa0334f2026e9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -179,6 +198,12 @@ PrefabInstance:
 --- !u!4 &7611997359458667765 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4014734635131596, guid: 9acd60bc8ae6a884c88aa0334f2026e9,
+    type: 3}
+  m_PrefabInstance: {fileID: 7614879045699087929}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7619399284276757297 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4775600230968584, guid: 9acd60bc8ae6a884c88aa0334f2026e9,
     type: 3}
   m_PrefabInstance: {fileID: 7614879045699087929}
   m_PrefabAsset: {fileID: 0}

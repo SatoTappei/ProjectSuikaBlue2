@@ -60,3 +60,10 @@ MonoBehaviour:
   - Key: 4
     Clip: {fileID: 8300000, guid: 48a69196f11df294886a85d7a13e1972, type: 3}
     Volume: 1
+  - Key: 5
+    Clip: {fileID: 8300000, guid: b611dc684228e24408d6dacc944e10a8, type: 3}
+    Volume: 1
+  - Key: 6
+    Clip: {fileID: 8300000, guid: 2f10786ebecf17c43ad5257803ad7748, type: 3}
+    Volume: 1
+  _audioListener: {fileID: 0}

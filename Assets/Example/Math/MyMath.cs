@@ -111,9 +111,16 @@ public static class MyMath
     /// </summary>
     public static float Magnitude(in Vector3 v)
     {
-        float f = (v.x * v.x) + (v.y * v.y) + (v.z * v.z);
-        // ルートの計算自体は可能だが、精度が重要なので既存のものを使う。
-        return Mathf.Sqrt(f);
+        // ルートの計算自体は複雑かつ精度が重要なので既存のものを使う。
+        return Mathf.Sqrt(SqrMagnitude(v));
+    }
+
+    /// <summary>
+    /// ベクトルの2乗の長さ
+    /// </summary>
+    public static float SqrMagnitude(in Vector3 v)
+    {
+        return (v.x * v.x) + (v.y * v.y) + (v.z * v.z);
     }
 
     /// <summary>

@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dde68f2864e446c41bb633dd257ed769, type: 3}
   m_Name: DungeonParameterSettings_Default
   m_EditorClassIdentifier: 
-  _size: 5
+  _size: 10
   _cellSize: 2.85
-  _entry: {x: 2, y: 2}
-  _wfcSeed: 1
-  _wfcRandomSeed: 1
-  _walkSeed: 1
-  _walkRandomSeed: 1
+  _entry: {x: 4, y: 4}
+  _wfcSeed: 254
+  _wfcRandomSeed: 0
+  _walkSeed: 119
+  _walkRandomSeed: 0
   _cellRayOffset: {x: 0, y: 1, z: 0}
   _cellRayHitMax: 9
   _stepSpeed: 0.016

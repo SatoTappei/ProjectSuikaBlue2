@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7382993066770910919}
   - component: {fileID: 238541909877436011}
+  - component: {fileID: 3717008545978863791}
   - component: {fileID: 2395825944003258006}
   m_Layer: 0
   m_Name: SolidArc
@@ -41,6 +42,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2530619905165144353}
   m_Mesh: {fileID: 0}
+--- !u!23 &3717008545978863791
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2530619905165144353}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!64 &2395825944003258006
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -156,7 +199,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4177877078539940340}
   - component: {fileID: 2974697955459092065}
-  - component: {fileID: 5387868189343126575}
+  - component: {fileID: 7688416744297272138}
   m_Layer: 0
   m_Name: Turret
   m_TagString: Untagged
@@ -192,7 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ccf74c440c6c4747bd861bd7e2d00dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _meshDrawer: {fileID: 0}
+  _meshDrawer: {fileID: 7688416744297272138}
   _solidArcMesh:
     _collider: {fileID: 2395825944003258006}
     _filter: {fileID: 238541909877436011}
@@ -200,9 +243,14 @@ MonoBehaviour:
   _detectAngle: 45
   _detectRadius: 3
   _muzzle: {fileID: 6207217016955213880}
-  _debugDraw: 1
-  _debugTarget: {x: 0, y: 0, z: 0}
---- !u!114 &5387868189343126575
+  _lerp: 0.5
+  _centerHeight: 0
+  _targetHeight: 0
+  _space: 0.2
+  _length: 100
+  _drawGizmos: 1
+  _distance: 5
+--- !u!114 &7688416744297272138
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -211,12 +259,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8386294088604923832}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29d6326f14bc40f45a7fb00e8788f0ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 1ccf08054ded9064683bdbb418c82830, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _filter: {fileID: 0}
-  _renderer: {fileID: 0}
-  _collider: {fileID: 0}
+  _filter: {fileID: 238541909877436011}
+  _renderer: {fileID: 3717008545978863791}
+  _collider: {fileID: 2395825944003258006}
   _space: 1
 --- !u!1001 &4597300361253169668
 PrefabInstance:

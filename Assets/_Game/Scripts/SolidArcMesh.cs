@@ -70,7 +70,7 @@ namespace PSB.Game
         /// <summary>
         /// ƒMƒYƒ‚‚ÉƒƒbƒVƒ…‚ğ•`‰æ‚·‚é
         /// </summary>
-        public void DebugDraw()
+        public void DrawOnGizmos()
         {
             if (_triangles == null || _vertices == null) return;
 

@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using System.Linq;
 
 namespace PSB.Game
 {
-    public class Section
-    {
-        public Vector3 Left;
-        public Vector3 Right;
-    }
-
     public class MeshDrawer : MonoBehaviour
     {
+         class Section
+        {
+            public Vector3 Left;
+            public Vector3 Right;
+        }
+
         [SerializeField] MeshFilter _filter;
         [SerializeField] MeshRenderer _renderer;
         [SerializeField] MeshCollider _collider;
@@ -27,7 +28,7 @@ namespace PSB.Game
         void Awake()
         {
             _mesh = new();
-            _mesh.name = "RoadMesh";
+            _mesh.name = "MeshDrawer_LineMesh";
             _points = new();
             _sections = new();
         }
@@ -48,14 +49,20 @@ namespace PSB.Game
             }
         }
 
-        public void Create(List<Vector3> points)
+        /// <summary>
+        /// ê¸Çï`âÊÇ∑ÇÈ
+        /// </summary>
+        public void Line(Vector3[] points)
         {
-            _points = points;
-
-            for (int i = 0; i < _points.Count; i++)
+            _points = points.ToList();
+            
+            var v = points[0];
+            for (int i = 1; i < _points.Count; i++)
             {
-                // Ç‹ÇæÅB
+                _sections.Add(CalculateSection(_points[i - 1], _points[i]));
             }
+
+            Create();
         }
 
         void Add()

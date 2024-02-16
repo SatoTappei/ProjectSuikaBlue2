@@ -43,7 +43,7 @@ namespace PSB.Game
         {
             _token = this.GetCancellationTokenOnDestroy();
             // 会話履歴が更新されたタイミングでテキストを更新
-            _talk.AddLogObservable.Subscribe(_ => UpdateTalkHistory()).AddTo(this);
+            _talk.Log.ObserveAdd().Subscribe(_ => UpdateTalkHistory()).AddTo(this);
             // 送信ボタンを押したもしくはEnterキーを押したら入力を決定
             this.UpdateAsObservable()
                 .Where(_ => _isOpened)
@@ -112,7 +112,7 @@ namespace PSB.Game
 
             if (_inputField.text == "") return;
 
-            _talk.AddPlayerSend(_inputField.text);
+            _talk.AddMessage(_inputField.text, _talk.Settings.PlayerPriority);
             _talk.AddLog(_logHeader, _inputField.text);
             _inputField.text = "";
         }

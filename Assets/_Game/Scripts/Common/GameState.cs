@@ -25,5 +25,21 @@ namespace PSB.Game
         /// 入口にいる
         /// </summary>
         public bool IsStandingEntrance => PlayerIndex == StartIndex;
+        /// <summary>
+        /// 前方向へ移動の期待値
+        /// </summary>
+        public int ForwardEvaluate { get; set; }
+        /// <summary>
+        /// 後ろ方向へ移動の期待値
+        /// </summary>
+        public int BackEvaluate { get; set; }
+        /// <summary>
+        /// 左方向へ移動の期待値
+        /// </summary>
+        public int LeftEvaluate { get; set; }
+        /// <summary>
+        /// 右方向へ移動の期待値
+        /// </summary>
+        public int RightEvaluate { get; set; }
     }
 }

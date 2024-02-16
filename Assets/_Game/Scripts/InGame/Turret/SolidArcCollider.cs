@@ -4,16 +4,25 @@ using UnityEngine;
 
 namespace PSB.Game
 {
-    [System.Serializable]
-    class SolidArcMesh
+    class SolidArcCollider : MonoBehaviour
     {
         [SerializeField] MeshCollider _collider;
         [SerializeField] MeshFilter _filter;
         [SerializeField] float _pieceAngle = 10.0f;
+        [SerializeField] float _startAngle = -45.0f;
+        [SerializeField] float _endAngle = 45.0f;
+        [SerializeField] float _radius = 3.0f;
+        [Header("ギズモに描画")]
+        [SerializeField] bool _drawOnGizmos = true;
 
         Mesh _mesh;
         Vector3[] _vertices;
         int[] _triangles;
+
+        void Awake()
+        {
+            Create(_startAngle, _endAngle, _radius);
+        }
 
         /// <summary>
         /// 2つの角度間に判定を持った扇状のメッシュを作成する。
@@ -67,12 +76,10 @@ namespace PSB.Game
             _collider.sharedMesh = _mesh;
         }
 
-        /// <summary>
-        /// ギズモにメッシュを描画する
-        /// </summary>
-        public void DrawOnGizmos()
+        void OnDrawGizmos()
         {
             if (_triangles == null || _vertices == null) return;
+            if (!_drawOnGizmos) return;
 
             // 回転させると正常に表示されない
             Vector3 center = _collider.transform.position;

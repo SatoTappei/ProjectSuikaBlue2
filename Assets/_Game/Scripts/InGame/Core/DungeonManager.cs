@@ -28,6 +28,11 @@ namespace PSB.Game
         // A*で求めた経路をギズモに描画する用途
         List<IReadOnlyCell> _pathCopy = new();
 
+        /// <summary>
+        /// ダンジョンの1辺の大きさ。
+        /// </summary>
+        public float DungeonSize => _settings.CellSize * _settings.Size;
+
         public DungeonManager(GameState gameState, DungeonParameterSettings settings,
             TileBuilder tileBuilder, EntityCreator entityCreator)
         {

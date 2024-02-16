@@ -10,7 +10,7 @@ namespace PSB.Game
     {
         [SerializeField] Transform _left;
         [SerializeField] Transform _right;
-        [SerializeField] Collider _collider;
+        [SerializeField] UnityEngine.Collider _collider;
         [Header("アニメーションの設定")]
         [SerializeField] float _duration;
         [SerializeField] float _openAngle;

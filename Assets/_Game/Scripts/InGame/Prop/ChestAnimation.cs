@@ -11,7 +11,7 @@ namespace PSB.Game
     public class ChestAnimation : BillboardAnimation, ILocation
     {
         [SerializeField] GameObject _effect;
-        [SerializeField] Collider _collider;
+        [SerializeField] UnityEngine.Collider _collider;
         [SerializeField] Transform _cover;
         [Header("アニメーションの設定")]
         [SerializeField] float _openAngle;

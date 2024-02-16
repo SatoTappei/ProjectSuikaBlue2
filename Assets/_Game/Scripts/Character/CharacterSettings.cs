@@ -10,8 +10,12 @@ namespace PSB.Game
         public readonly int MaxMental = 100;
         public readonly int MinMental = 0;
 
+        [Header("キャラクターの名前")]
         [SerializeField] string _characterName = "めいど";
+        [Header("デフォルトの心情")]
         [SerializeField] int _defaultMental = 100;
+        [Header("プレイヤーの優先度")]
+        [SerializeField] int _playerPriority = 100;
 
         /// <summary>
         /// 会話履歴用のヘッダー
@@ -21,5 +25,9 @@ namespace PSB.Game
         /// 心情の初期値
         /// </summary>
         public int DefaultMental => _defaultMental;
+        /// <summary>
+        /// プレイヤーの優先度
+        /// </summary>
+        public int PlayerPriority => _playerPriority;
     }
 }

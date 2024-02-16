@@ -37,7 +37,7 @@ namespace PSB.Game
         void Awake()
         {
             _fullModeText.text = "";
-            _talk.CharacterLine.Skip(1).Subscribe(Print);
+            _talk.CharacterAiResponse.Skip(1).Subscribe(Print);
             // キャラクターを触ったら喋る
             LoadPreparedLines();
             _touchArea.onClick.AddListener(PreparedLine);

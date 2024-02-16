@@ -48,8 +48,6 @@ namespace PSB.Game
         [SerializeField] GameObject _particle;
         [SerializeField] Vector3 _particleOffset;
         [SerializeField] int _particleCapacity;
-        // オブプーで走る際のパーティクル実装
-        // BTから一定間隔で呼ぶ必要がある。
 
         GameState _gameState;
         DungeonManager _dungeonManager;

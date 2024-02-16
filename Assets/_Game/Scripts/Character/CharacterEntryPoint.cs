@@ -4,6 +4,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using VContainer;
+using UniRx;
 
 namespace PSB.Game
 {
@@ -19,6 +20,8 @@ namespace PSB.Game
 
         IReadOnlyGameState _gameState;
         Talk _talk;
+        OpenAiRequest _gameRuleAi;
+        OpenAiRequest _characterAi;
 
         [Inject]
         void Construct(GameState gameState, Talk talk)
@@ -29,71 +32,80 @@ namespace PSB.Game
 
         void Start()
         {
-            if (_useApi) UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
+            if (_useApi)
+            {
+                Init();
+                UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
+            }
             else Debug.LogWarning("OpenAIを使用しない状態で実行中");
+        }
+
+        void Init()
+        {
+            // AIにリクエストするクラス
+            _gameRuleAi = new(_gameRule.ToString());
+            _characterAi = new(_character.ToString());
         }
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
         {
-            OpenAiRequest gameRuleAi = new(_gameRule.ToString());
-            OpenAiRequest characterAi = new(_character.ToString());
-            OpenAiRequest contextJudgeAi = new(_contextJudge.ToString());
             while (!token.IsCancellationRequested)
             {
-                string playerSend = _talk.GetPlayerSend();
-                // キャラクターの台詞はUIに表示するだけなので待つ必要なし
-                CharacterTalkAsync(playerSend, characterAi, token).Forget();
-                // プレイヤーの入力を判定してインゲーム内の操作を決める
-                await ContextJudgeAsync(playerSend, contextJudgeAi, gameRuleAi, token);
-                // インゲーム内のキャラクターが行動中かどうかに関わらず一定間隔でリクエストしている
+                // ゲームの状態を評価する。
+                Evaluate();
+
+                // プレイヤーの入力もしくはゲームの状態を解析した文章から優先度が最も高いものを選ぶ。
+                Talk.Message msg = _talk.SelectTopPriorityMessage();
+                if (msg == null || msg.Text == "")
+                {
+                    // 入力が無い場合は次のタイミングまで待つ。
+                    await UniTask.WaitForSeconds(_requestInterval, cancellationToken: token);
+                    continue;
+                }
+
+                // キャラクターの台詞は投げっぱなし。
+                CharacterLineAsync(msg.Text, token).Forget();
+                // AIによるキー入力を待つ。
+                await RequestNextKeyInputAsync(msg.Text, token);
+
                 await UniTask.WaitForSeconds(_requestInterval, cancellationToken: token);
             }
         }
 
-        // プレイヤーの入力に反応したキャラクターの台詞
-        async UniTask CharacterTalkAsync(string playerSend, OpenAiRequest character, CancellationToken token)
+        // キャラクター台詞をリクエスト。
+        async UniTask CharacterLineAsync(string text, CancellationToken token)
         {
-            if (playerSend == "") return;
-
-            string response = await character.RequestAsync(playerSend);
-            // キャラクターの台詞としてセット 会話履歴に追加
-            _talk.SetCharacterLine(response);
-            _talk.AddLog(_talk.Settings.LogHeader, response);
-
-            AudioPlayer.Play(AudioKey.CharacterSendSE, AudioPlayer.PlayMode.SE);
+            string response = await _characterAi.RequestAsync(text);
+            _talk.SetCharacterAiResponse(response);
         }
 
-        // プレイヤーの入力の文脈を判定して次の行動を決める
-        async UniTask ContextJudgeAsync(string playerSend, OpenAiRequest contextJudge, OpenAiRequest gameRule, CancellationToken token)
+        // ゲームのルールを基に次のキー入力をAIが決定し、メッセージを送信。
+        async UniTask RequestNextKeyInputAsync(string text, CancellationToken token)
         {
-            // 入力が無い場合はゲームの状態で判定する
-            if (playerSend == "") { await GameStateJudgeAsync(gameRule, token); return; }
+            string response = await _gameRuleAi.RequestAsync(text);
+            _talk.SetGameRuleAiResponse(response);
 
-            string response = await contextJudge.RequestAsync(playerSend);
-            _talk.SetContextJudgeResponse(response);
-            // 心情を変更
-            if (int.TryParse(response, out int result)) _talk.Mental += result;
-            // 指示(-1)と判断された場合はプレイヤーの指示に従う
-            if (result == -1) await PlayerFollowAsync(playerSend, gameRule, token);
-            else await GameStateJudgeAsync(gameRule, token);
+            // AIからのレスポンスを基にキー入力のメッセージを送信。
+            // ゲームルールを記述したテキストファイルにAI側のレスポンスのルールが書いてある。
+            KeyInputMessage msg = new();
+            if (response.Contains("1")) msg.KeyDownW = true;
+            else if (response.Contains("2")) msg.KeyDownS = true;
+            else if (response.Contains("3")) msg.KeyDownA = true;
+            else if (response.Contains("4")) msg.KeyDownD = true;
+            else return; // どれにも該当しない場合は送信しない。
+
+            MessageBroker.Default.Publish(msg);
         }
 
-        // プレイヤーの指示に従う
-        async UniTask PlayerFollowAsync(string playerSend, OpenAiRequest gameRule, CancellationToken token)
+        // ゲームの状態を基にAIへのリクエストを作成。
+        void Evaluate()
         {
-            string request = Translator.Translate(playerSend);
-            string response = await gameRule.RequestAsync(request);
-            _talk.SetPlayerFollowTalk(request, response);
-            InputMessenger.SendMessage(_gameState, response);
-        }
+            string f = $"前に{_gameState.ForwardEvaluate}歩進むことが出来ます。";
+            string b = $"後ろに{_gameState.BackEvaluate}歩進むことが出来ます。";
+            string l = $"左を向くと{_gameState.LeftEvaluate}歩進める道があります。";
+            string r = $"右を向くと{_gameState.RightEvaluate}歩進める道があります。";
 
-        // ゲームの状態をAPIが判断して次の行動を決める
-        async UniTask GameStateJudgeAsync(OpenAiRequest gameRule, CancellationToken token)
-        {
-            string request = Translator.Translate(_gameState);
-            string response = await gameRule.RequestAsync(request);
-            _talk.SetGameStateJudgeTalk(request, response);
-            InputMessenger.SendMessage(_gameState, response);
+            _talk.AddMessage(f + b + l + r + "どの方向に進みますか？", _talk.Mental);
         }
     }
 }

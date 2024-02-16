@@ -4,6 +4,7 @@ using UnityEngine;
 using UniRx;
 using System;
 using System.Text;
+using System.Linq;
 
 namespace PSB.Game
 {
@@ -12,22 +13,46 @@ namespace PSB.Game
     /// </summary>
     public class Talk
     {
+        /// <summary>
+        /// AIにリクエストする文章を管理するためのクラス
+        /// </summary>
+        public class Message : IComparable<Message>
+        {
+            public Message(string text, int priority)
+            {
+                Text = text;
+                Priority = priority;
+            }
+
+            /// <summary>
+            /// リクエストする文章
+            /// </summary>
+            public string Text { get; private set; }
+            /// <summary>
+            /// 優先度
+            /// </summary>
+            public int Priority { get; private set; }
+
+            public int CompareTo(Message other)
+            {
+                return Priority - other.Priority;
+            }
+        }
+
         CharacterSettings _settings;
         StringBuilder _builder = new();
-        Queue<string> _playerSends = new();
         ReactiveCollection<string> _log = new();
-        ReactiveProperty<string> _characterLine = new();
-        // 現状デバッグで表示させる用
-        ReactiveProperty<string> _contextJudge = new();
-        ReactiveProperty<string> _playerFollowRequest = new();
-        ReactiveProperty<string> _playerFollowResponse = new();
-        ReactiveProperty<string> _gameStateJudgeRequest = new();
-        ReactiveProperty<string> _gameStateJudgeResponse = new();
+        ReactiveProperty<string> _aiRequest = new();
+        ReactiveProperty<string> _gameRuleAiResponse = new();
+        ReactiveProperty<string> _characterAiResponse = new();
+        // プレイヤーが送信した文章とゲームの状態を変換した文章どちらも一括で管理する。
+        List<Message> _messages = new();
         int _mental;
 
         public Talk(CharacterSettings settings)
         {
             _settings = settings;
+            _mental = settings.DefaultMental;
         }
 
         /// <summary>
@@ -51,37 +76,39 @@ namespace PSB.Game
         /// </summary>
         public IReadOnlyReactiveCollection<string> Log => _log;
         /// <summary>
-        /// 会話履歴に台詞を追加した際に呼ばれる
+        /// AIにリクエストする文章
         /// </summary>
-        public IObservable<CollectionAddEvent<string>> AddLogObservable => _log.ObserveAdd();
+        public IReadOnlyReactiveProperty<string> AiRequest => _aiRequest;
         /// <summary>
-        /// キャラクターの台詞
+        /// ゲームルールAIからのレスポンス
         /// </summary>
-        public IReadOnlyReactiveProperty<string> CharacterLine => _characterLine;
+        public IReadOnlyReactiveProperty<string> GameRuleAiResponse => _gameRuleAiResponse;
         /// <summary>
-        /// 次に取り出されるプレイヤーの入力
+        /// キャラクターAIからのレスポンス
         /// </summary>
-        public string LeadPlayerSend => _playerSends.TryPeek(out string r) ? r : "";
+        public IReadOnlyReactiveProperty<string> CharacterAiResponse => _characterAiResponse;
+
         /// <summary>
-        /// OpenAIがプレイヤーの入力の文脈を判定したレスポンス
+        /// AIにリクエストする用のメッセージを追加
         /// </summary>
-        public IReadOnlyReactiveProperty<string> ContextJudge => _contextJudge;
+        public void AddMessage(string text, int priority)
+        {
+            _messages.Add(new(text, priority));
+        }
+
         /// <summary>
-        /// デバッグ用:プレイヤーの指示に従う場合のプレイヤーのOpenAIへのリクエスト
+        /// 優先度が最も高いメッセージを選択し、溜めたメッセージの中身を空にする。
         /// </summary>
-        public IReadOnlyReactiveProperty<string> PlayerFollowRequest => _playerFollowRequest;
-        /// <summary>
-        /// デバッグ用:プレイヤーの指示に従う場合のOpenAIからのレスポンス
-        /// </summary>
-        public IReadOnlyReactiveProperty<string> PlayerFollowResponse => _playerFollowResponse;
-        /// <summary>
-        /// デバッグ用:ゲームの状態から判断する場合のプレイヤーのOpenAIへのリクエスト
-        /// </summary>
-        public IReadOnlyReactiveProperty<string> GameStateJudgeRequest => _gameStateJudgeRequest;
-        /// <summary>
-        /// デバッグ用:ゲームの状態から判断する場合のOpenAIからのレスポンス
-        /// </summary>
-        public IReadOnlyReactiveProperty<string> GameStateJudgeResponse => _gameStateJudgeResponse;
+        public Message SelectTopPriorityMessage()
+        {
+            Message m = _messages.OrderByDescending(m => m).FirstOrDefault();
+            _messages.Clear();
+
+            // 選択した文章を保持
+            if (m != null) _aiRequest.Value = m.Text;
+
+            return m;
+        }
 
         /// <summary>
         /// 会話履歴に台詞を追加
@@ -95,57 +122,19 @@ namespace PSB.Game
         }
 
         /// <summary>
-        /// プレイヤーの入力を追加
+        /// ゲームルールAIからのレスポンスをセット
         /// </summary>
-        public void AddPlayerSend(string line)
+        public void SetGameRuleAiResponse(string line)
         {
-            _playerSends.Enqueue(line);
+            _gameRuleAiResponse.Value = line;
         }
 
         /// <summary>
-        /// プレイヤーの入力から先頭を取得し、キュー自体を空にする
+        /// キャラクターAIからのレスポンスをセット
         /// </summary>
-        public string GetPlayerSend()
+        public void SetCharacterAiResponse(string line)
         {
-            if (_playerSends.Count == 0) return "";
-
-            string s = _playerSends.Dequeue();
-            _playerSends.Clear();
-            return s;
-        }
-
-        /// <summary>
-        /// キャラクターの台詞をセット
-        /// </summary>
-        public void SetCharacterLine(string line)
-        {
-            _characterLine.Value = line;
-        }
-
-        /// <summary>
-        /// OpenAIがプレイヤーの入力の文脈を判定したレスポンスをセット
-        /// </summary>
-        public void SetContextJudgeResponse(string line)
-        {
-            _contextJudge.Value = line;
-        }
-
-        /// <summary>
-        /// プレイヤーの指示に従う場合のOpenAIとのやり取りをセット
-        /// </summary>
-        public void SetPlayerFollowTalk(string request, string response)
-        {
-            _playerFollowRequest.Value = request;
-            _playerFollowResponse.Value = response;
-        }
-
-        /// <summary>
-        /// ゲームの状態をAPIが判断して次の行動を決める場合のOpenAIとのやり取りをセット
-        /// </summary>
-        public void SetGameStateJudgeTalk(string request, string response)
-        {
-            _gameStateJudgeRequest.Value = request;
-            _gameStateJudgeResponse.Value = response;
+            _characterAiResponse.Value = line;
         }
     }
 }

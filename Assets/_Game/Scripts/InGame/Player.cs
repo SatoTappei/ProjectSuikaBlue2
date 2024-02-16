@@ -66,6 +66,9 @@ namespace PSB.Game
         {
             while (!token.IsCancellationRequested)
             {
+                // 周囲を調べる
+                SearchAround();
+
                 // 入力のメッセージが飛んでくるまで待機
                 KeyInputMessage msg = await MessageAwaiter.ReceiveAsync<KeyInputMessage>(token);
 
@@ -136,6 +139,32 @@ namespace PSB.Game
 
             // 現在地に応じたイベント発生
             cell.Location?.Action();
+        }
+
+        // AIが現在の状況を把握するため、周囲を調べてGameStateに書き込む
+        void SearchAround()
+        {
+            // 現在のセルの位置を基準に眼の高さから
+            Vector3 p = _dungeonManager.GetCell(_currentIndex).Position;
+            p.y = _settings.EyeHeight;
+
+            // 前後左右の進める距離をチェック
+            _gameState.ForwardEvaluate = CheckDistance(_forward.TurnedDirection(Arrow.Up).ToIndex());
+            _gameState.BackEvaluate = CheckDistance(_forward.TurnedDirection(Arrow.Down).ToIndex());
+            _gameState.LeftEvaluate = CheckDistance(_forward.TurnedDirection(Arrow.Left).ToIndex());
+            _gameState.RightEvaluate = CheckDistance(_forward.TurnedDirection(Arrow.Right).ToIndex());
+
+            // その方向にどれだけ進めるか
+            int CheckDistance(Vector2Int index)
+            {
+                for (int i = 1; ; i++)
+                {
+                    if (!_dungeonManager.IsConnected(_currentIndex + index * i, _currentIndex + index * (i - 1)))
+                    {
+                        return i - 1;
+                    }
+                }
+            }
         }
 
         // ダメージ

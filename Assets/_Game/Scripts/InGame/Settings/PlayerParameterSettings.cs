@@ -7,6 +7,8 @@ namespace PSB.Game
     [CreateAssetMenu(fileName = "PlayerParameterSettings_")]
     public class PlayerParameterSettings : ScriptableObject
     {
+        [Header("眼の高さ")]
+        [SerializeField] float _eyeHeight = 0.75f;
         [Header("地面からの高さ")]
         [SerializeField] float _groundOffset = 1.0f;
         [Header("移動速度")]
@@ -37,5 +39,9 @@ namespace PSB.Game
         /// 歩く際に鳴る音のディレイ
         /// </summary>
         public float WalkSeDelay => _walkSeDelay;
+        /// <summary>
+        /// 眼の高さから水平にレイキャストをして壁などの判定を行う際に使用する。
+        /// </summary>
+        public float EyeHeight => _eyeHeight;
     }
 }

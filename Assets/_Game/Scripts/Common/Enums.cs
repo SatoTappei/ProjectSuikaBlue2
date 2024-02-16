@@ -20,6 +20,17 @@ namespace PSB.Game
     }
 
     /// <summary>
+    /// 上下左右を指定する際に使用する。
+    /// </summary>
+    public enum Arrow
+    {
+        Up,
+        Down,
+        Left,
+        Right,
+    }
+
+    /// <summary>
     /// タイルがどのような場所なのかを決めるキー
     /// </summary>
     public enum LocationKey
@@ -45,6 +56,7 @@ namespace PSB.Game
         Dummy,
         Player,
         Enemy,
+        Turret,
     }
 
     /// <summary>
@@ -70,6 +82,3 @@ namespace PSB.Game
         SimpleNotice, // シンプル状態でキャラクターが喋る
     }
 }
-
-// スタートとゴールの配置＆アニメーション付け
-// ゴールにたどり着いたらゲームクリアにする

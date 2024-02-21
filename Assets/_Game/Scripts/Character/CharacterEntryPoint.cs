@@ -104,7 +104,15 @@ namespace PSB.Game
         // ゲームのルールを基に次のキー入力をAIが決定し、メッセージを送信。
         async UniTask RequestNextKeyInputAsync(string text)
         {
-            string response = await _gameRuleAi.RequestAsync(text);
+            string response = "";
+            try
+            {
+                response = await _gameRuleAi.RequestAsync(text);
+            }
+            catch(UnityWebRequestException e)
+            {
+                Debug.LogError($"AIへのリクエスト中にエラーが発生: {e.Message}");
+            }
             _talk.GameRuleAI.SetResponse(response);
 
             // AIからのレスポンスを基にキー入力のメッセージを送信。

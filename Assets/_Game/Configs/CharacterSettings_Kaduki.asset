@@ -18,4 +18,4 @@ MonoBehaviour:
   _defaultMental: 55
   _playerPriority: 100
   _inGameEventPriority: 1000
-  _damagedPriority: 500
+  _damagedPriority: 300

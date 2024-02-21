@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Cysharp.Threading.Tasks;
@@ -53,6 +54,7 @@ namespace PSB.Game
         const string ApiKey = "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";
         const string Version = "gpt-4-1106-preview";
         const string OldVersion = "gpt-3.5-turbo";
+        const int Timeout = 5;
 
         List<ApiRequestMessage> _messages = new();
 
@@ -80,7 +82,8 @@ namespace PSB.Game
             using UnityWebRequest request = new UnityWebRequest("https://api.openai.com/v1/chat/completions", "POST")
             {
                 uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json)),
-                downloadHandler = new DownloadHandlerBuffer()
+                downloadHandler = new DownloadHandlerBuffer(),
+                timeout = Timeout
             };
 
             // APIリクエストのヘッダーを設定

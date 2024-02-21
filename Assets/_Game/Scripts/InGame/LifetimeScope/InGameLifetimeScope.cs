@@ -18,13 +18,18 @@ namespace PSB.Game
 
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterComponent(_tileBuilder);
-            builder.RegisterComponent(_entityCreator);
-            builder.RegisterComponent(_uiManager);
-            builder.Register<DungeonManager>(Lifetime.Singleton);
+            if (_tileBuilder != null) builder.RegisterComponent(_tileBuilder);
+            if (_entityCreator != null) builder.RegisterComponent(_entityCreator);
+            if (_uiManager != null) builder.RegisterComponent(_uiManager);
+            if (_playerSettings != null) builder.RegisterInstance(_playerSettings);
+            if (_dungeonSettings != null) builder.RegisterInstance(_dungeonSettings);
+
             builder.Register<BlackBoard>(Lifetime.Singleton);
-            builder.RegisterInstance(_playerSettings);
-            builder.RegisterInstance(_dungeonSettings);
+
+            if (_dungeonSettings != null && _tileBuilder != null && _entityCreator != null)
+            {
+                builder.Register<DungeonManager>(Lifetime.Singleton);
+            }
         }
     }
 }

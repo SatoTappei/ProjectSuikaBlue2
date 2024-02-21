@@ -54,5 +54,15 @@ namespace PSB.Game
         {
             return (uint)UnityEngine.Random.Range(1, uint.MaxValue);
         }
+
+        /// <summary>
+        /// 0‚©‚çˆø”‚Ì’l‚Ì”ÍˆÍ‚Åƒ‰ƒ“ƒ_ƒ€‚ÈintŒ^2‚Â‚Ì“Y‚¦š‚ğ•Ô‚·B
+        /// </summary>
+        public static Vector2Int RandomIndex(int max)
+        {
+            int a = UnityEngine.Random.Range(0, max);
+            int b = UnityEngine.Random.Range(0, max);
+            return new Vector2Int(a, b);
+        }
     }
 }

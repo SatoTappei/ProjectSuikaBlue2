@@ -14,6 +14,10 @@ namespace PSB.Game.FSM
         [SerializeField] float _attackDelay = 0.5f;
         [Header("攻撃範囲(セル単位)")]
         [SerializeField] int _range;
+        [Header("攻撃前にプレイヤーに向く速度")]
+        [SerializeField] float _lookSpeed = 10.0f;
+        [Header("攻撃前にプレイヤーを向く時間")]
+        [SerializeField] float _lookDuration = 0.5f;
 
         Enemy _self;
         Sequence _sequence;
@@ -27,6 +31,7 @@ namespace PSB.Game.FSM
             // アニメーションに合わせて攻撃処理。
             _sequence = new(nameof(Sequence),
                 new CharacterDetect(_range, _self),
+                new LookAtPlayer(_lookSpeed, _lookDuration, _self), // 攻撃前にプレイヤーに向き直る時間が必要
                 new PlayAnimation(_self, Enemy.AnimationKey.Kick, _attackDelay),
                 new Attack(_self, _range),
                 new WaitForTime(_animationPlayTime - _attackDelay)); // アニメーションの再生完了まで待つ。

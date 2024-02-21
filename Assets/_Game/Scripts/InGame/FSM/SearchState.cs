@@ -12,6 +12,8 @@ namespace PSB.Game.FSM
         [SerializeField] float _moveSpeed = 0.5f;
         [Header("回転速度")]
         [SerializeField] float _rotSpeed = 10;
+        [Header("プレイヤー検知距離")]
+        [SerializeField] int _detectDistance = 2;
 
         Enemy _self;
         Sequence _sequence;
@@ -22,11 +24,11 @@ namespace PSB.Game.FSM
         {
             _self = self.GetComponent<Enemy>();
 
-            // 隣のセルに移動。
+            // 隣のセルに移動
             _sequence = new(nameof(Sequence),
                 new PathToNeighbour(_self),
                 new PlayAnimation(_self, Enemy.AnimationKey.Walk, 0),
-                new PathFollowedMove(_moveSpeed, _rotSpeed, _self));
+                new PathFollowedMove(_moveSpeed, _rotSpeed, _detectDistance, _self));
         }
 
         protected override void Enter()

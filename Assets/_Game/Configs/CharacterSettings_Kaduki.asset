@@ -13,4 +13,9 @@ MonoBehaviour:
   m_Name: CharacterSettings_Kaduki
   m_EditorClassIdentifier: 
   _characterName: Kaduki
-  _defaultMental: 100
+  _maxMental: 100
+  _minMental: 0
+  _defaultMental: 55
+  _playerPriority: 100
+  _inGameEventPriority: 1000
+  _damagedPriority: 500

@@ -15,6 +15,10 @@ namespace PSB.Game
         /// </summary>
         public Vector2Int PlayerIndex { get; }
         /// <summary>
+        /// インゲーム内でプレイヤーの操作が出来るようになった
+        /// </summary>
+        public bool IsInGameReady { get; }
+        /// <summary>
         /// 宝を入手済み
         /// </summary>
         public bool IsGetTreasure { get; }
@@ -22,6 +26,10 @@ namespace PSB.Game
         /// 入口にいる
         /// </summary>
         public bool IsStandingEntrance => PlayerIndex == StartIndex;
+        /// <summary>
+        /// インゲーム内でクリア条件を満たした
+        /// </summary>
+        public bool IsInGameClear { get; }
         /// <summary>
         /// 前方向へ移動の期待値
         /// </summary>
@@ -38,5 +46,9 @@ namespace PSB.Game
         /// 右方向へ移動の期待値
         /// </summary>
         public int RightEvaluate { get; }
+        /// <summary>
+        /// 最後にダメージを受けた時間
+        /// </summary>
+        public float LastDamagedTime { get; set; }
     }
 }

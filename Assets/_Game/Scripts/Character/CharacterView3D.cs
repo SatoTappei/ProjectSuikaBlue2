@@ -7,6 +7,7 @@ using System.Threading;
 using System.Text;
 using VContainer;
 using UniRx;
+using TMPro;
 
 namespace PSB.Game
 {
@@ -21,6 +22,8 @@ namespace PSB.Game
         [Header("テキストの更新")]
         [SerializeField] Text _fullModeText;
         [SerializeField] float _textFeed = 0.05f;
+        [Header("心情")]
+        [SerializeField] Transform _mentalGauge;
 
         Talk _talk;
         CancellationTokenSource _cts;
@@ -37,7 +40,9 @@ namespace PSB.Game
         void Awake()
         {
             _fullModeText.text = "";
-            _talk.CharacterAiResponse.Skip(1).Subscribe(Print);
+            _talk.CharacterAI.Response.Skip(1).Subscribe(AiResponse).AddTo(this);
+            _talk.Mental.Skip(1).Subscribe(MentalGaugeValueChanged).AddTo(this);
+            MentalGaugeValueChanged(_talk.Mental.Value);
             // キャラクターを触ったら喋る
             LoadPreparedLines();
             _touchArea.onClick.AddListener(PreparedLine);
@@ -45,7 +50,8 @@ namespace PSB.Game
 
         void OnDestroy()
         {
-            if (_cts != null) _cts.Cancel();
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         // タッチされた際に喋る台詞を読み込む
@@ -71,14 +77,19 @@ namespace PSB.Game
             Print(s);
         }
 
+        // AIからのレスポンスを表示
+        void AiResponse(string line)
+        {
+            Print(line);
+            AudioPlayer.Play(AudioKey.CharacterSendSE, AudioPlayer.PlayMode.SE);
+        }
+
         // テキストに表示
         void Print(string line)
         {
-            if (_cts != null) _cts.Cancel();
+            _cts?.Cancel();
             _cts = new();
             TextAnimationAsync(line, _cts.Token).Forget();
-
-            // NOTE:ここでアニメーションの再生とかする
         }
 
         // 文字送りアニメーション
@@ -90,10 +101,21 @@ namespace PSB.Game
 
             for (int i = 0; i < line.Length; i++)
             {
+                if (token.IsCancellationRequested) break;
+
                 _builder.Append(line[i]);
                 _fullModeText.text = _builder.ToString();
+
                 await UniTask.WaitForSeconds(_textFeed, cancellationToken: token);
             }
+        }
+
+        // 心情のゲージを変更
+        void MentalGaugeValueChanged(int value)
+        {
+            // 大きさを01で変更
+            float v = value * 1.0f / _talk.Settings.MaxMental;
+            _mentalGauge.transform.localScale = new Vector3(v, 1, 1);
         }
     }
 }

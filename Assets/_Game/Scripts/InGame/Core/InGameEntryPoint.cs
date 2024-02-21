@@ -29,13 +29,24 @@ namespace PSB.Game
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
         {
-            await _dungeonManager.BuildAsync(token);
-            // プレイヤーの操作を受け付ける準備完了
-            MessageBroker.Default.Publish(new InGameReadyMessage());
+            // ダンジョン生成中にロード画面
+            using (CancellationTokenSource cts = new())
+            {
+                _uiManager.LoadingAsync(cts.Token).Forget();
+                await _dungeonManager.BuildAsync(token);
+                cts.Cancel();
+            }
+
+            // ゲーム開始の準備が完了
+            _gameState.IsInGameReady = true;
+
             // 宝箱を取るまで待つ
             await UniTask.WaitUntil(() => _gameState.IsGetTreasure);
             // 入口に立つまで待つ
             await UniTask.WaitUntil(() => _gameState.IsStandingEntrance);
+
+            // ゲーム終了条件達成
+            _gameState.IsInGameClear = true;
 
             // ゲームクリアの演出
             await _uiManager.GameClearAnimationAsync(token);

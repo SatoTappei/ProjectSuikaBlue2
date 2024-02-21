@@ -24,7 +24,7 @@ namespace PSB.Game
         async UniTaskVoid UpdateAsync(CancellationToken token)
         {
             // 設計的にはDIすべきだが、目的が単純なのでタグで取得
-            Transform player = GameObject.FindGameObjectWithTag(Const.PlayerTag).transform;
+            GameObject player = GameObject.FindGameObjectWithTag(Const.PlayerTag);
 
             if (player == null)
             {
@@ -32,10 +32,11 @@ namespace PSB.Game
                 return;
             }
 
+            Transform t = player.transform;
             while (!token.IsCancellationRequested)
             {
                 // ビルボード
-                Vector3 p = player.position;
+                Vector3 p = t.position;
                 p.y = transform.position.y;
                 transform.LookAt(p);
 

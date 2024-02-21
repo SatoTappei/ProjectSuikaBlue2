@@ -29,9 +29,13 @@ namespace PSB.Game
         List<IReadOnlyCell> _pathCopy = new();
 
         /// <summary>
-        /// ダンジョンの1辺の大きさ。
+        /// ダンジョンの1辺の直径。
         /// </summary>
-        public float DungeonSize => _settings.CellSize * _settings.Size;
+        public float Diameter => _settings.CellSize * _settings.Size;
+        /// <summary>
+        /// ダンジョンの1辺のセルの数。
+        /// </summary>
+        public int Size => _settings.Size - 1;
 
         public DungeonManager(GameState gameState, DungeonParameterSettings settings,
             TileBuilder tileBuilder, EntityCreator entityCreator)

@@ -34,7 +34,7 @@ namespace PSB.Game.BT
             Vector2Int current = _self.GetPosition().index;
             foreach (Vector2Int d in Utility.RandomDirection(Utility.RandomSeed()))
             {
-                // 上下左右のうちランダムな方向の隣のセルを選択
+                // 上下左右のうちランダムな方向の隣のセルを選択。
                 // その方向のセルに移動できるかの保証はこのノードでは行わない。
                 Vector2Int neighbour = current + d;
                 _self.PrivateBoard.Path = _self.Pathfinding(neighbour);
@@ -46,8 +46,3 @@ namespace PSB.Game.BT
         }
     }
 }
-
-// 隣のセルが壁を挟んでいた場合
-// 現在のセル取得
-// 隣接するセル取得
-// そのセルへ

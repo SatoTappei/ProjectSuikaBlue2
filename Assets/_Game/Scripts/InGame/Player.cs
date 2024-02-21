@@ -25,18 +25,8 @@ namespace PSB.Game
 
         void Start()
         {
-            FlowAsync(this.GetCancellationTokenOnDestroy()).Forget();
-        }
-
-        // ゲーム開始から操作終了までの一連の流れ
-        async UniTaskVoid FlowAsync(CancellationToken token)
-        {
             Init();
-
-            // 準備完了のメッセージを受信するまで操作させない
-            await MessageAwaiter.ReceiveAsync<InGameReadyMessage>(token);
-
-            await UpdateAsync(token);
+            UpdateAsync(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
         void Init()
@@ -64,6 +54,9 @@ namespace PSB.Game
 
         async UniTask UpdateAsync(CancellationToken token)
         {
+            // 準備完了のフラグが立つまで操作させない
+            await UniTask.WaitUntil(() => _gameState.IsInGameReady, cancellationToken: token);
+
             while (!token.IsCancellationRequested)
             {
                 // 周囲を調べる
@@ -71,6 +64,9 @@ namespace PSB.Game
 
                 // 入力のメッセージが飛んでくるまで待機
                 KeyInputMessage msg = await MessageAwaiter.ReceiveAsync<KeyInputMessage>(token);
+
+                // ゲームのクリア条件を満たしていた場合は弾く
+                if (_gameState.IsInGameClear) continue;
 
                 // 移動もしくは回転
                 if (msg.IsMoveKey(out KeyCode moveKey))
@@ -84,6 +80,8 @@ namespace PSB.Game
 
                 // 行動結果
                 ActionResult();
+
+                await UniTask.Yield(token);
             }
         }
 
@@ -170,8 +168,9 @@ namespace PSB.Game
         // ダメージ
         void IDamageReceiver.Damage()
         {
-            // ここで処理するのではなく、ダメージの内容をキューイングして任意のタイミングで処理した方が良い
-            Debug.Log(name + "がダメージを受けた");
+            _gameState.LastDamagedTime = Time.time;
+
+            AudioPlayer.Play(AudioKey.KickDamageSE, AudioPlayer.PlayMode.SE);
             CameraController.Shake();
         }
     }

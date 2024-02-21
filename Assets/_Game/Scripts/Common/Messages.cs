@@ -18,9 +18,4 @@ namespace PSB.Game
         public bool KeyDownW;
         public bool KeyDownSpace;
     }
-
-    /// <summary>
-    /// InGameでプレイヤーの操作を行う前の準備が完了したタイミングで送信される
-    /// </summary>
-    public struct InGameReadyMessage { }
 }

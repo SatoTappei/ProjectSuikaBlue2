@@ -112,7 +112,8 @@ namespace PSB.Game
 
             if (_inputField.text == "") return;
 
-            _talk.AddMessage(_inputField.text, _talk.Settings.PlayerPriority);
+            _talk.GameRuleAI.AddOption(_inputField.text, _talk.Settings.PlayerPriority, Talk.Owner.Player);
+            _talk.CharacterAI.AddOption(_inputField.text, _talk.Settings.PlayerPriority, Talk.Owner.Player);
             _talk.AddLog(_logHeader, _inputField.text);
             _inputField.text = "";
         }

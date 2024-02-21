@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using System;
-using System.Text;
 using System.Linq;
 
 namespace PSB.Game
@@ -14,24 +13,34 @@ namespace PSB.Game
     public class Talk
     {
         /// <summary>
-        /// AIにリクエストする文章を管理するためのクラス
+        /// 誰が送信したメッセージかを判定する
+        /// </summary>
+        public enum Owner { Player, GameState}
+
+        /// <summary>
+        /// AIにリクエストする文章に関する情報
         /// </summary>
         public class Message : IComparable<Message>
         {
-            public Message(string text, int priority)
+            public Message(string text, int priority, Owner owner)
             {
                 Text = text;
                 Priority = priority;
+                Owner = owner;
             }
 
             /// <summary>
-            /// リクエストする文章
+            /// 文章本体
             /// </summary>
             public string Text { get; private set; }
             /// <summary>
             /// 優先度
             /// </summary>
             public int Priority { get; private set; }
+            /// <summary>
+            /// 誰が送信したか
+            /// </summary>
+            public Owner Owner { get; private set; }
 
             public int CompareTo(Message other)
             {
@@ -39,102 +48,124 @@ namespace PSB.Game
             }
         }
 
-        CharacterSettings _settings;
-        StringBuilder _builder = new();
-        ReactiveCollection<string> _log = new();
-        ReactiveProperty<string> _aiRequest = new();
-        ReactiveProperty<string> _gameRuleAiResponse = new();
-        ReactiveProperty<string> _characterAiResponse = new();
-        // プレイヤーが送信した文章とゲームの状態を変換した文章どちらも一括で管理する。
-        List<Message> _messages = new();
-        int _mental;
+        /// <summary>
+        /// AIとのやり取りに関する値を種類ごとにまとめて管理する
+        /// </summary>
+        public class Content
+        {
+            ReactiveProperty<string> _request = new();
+            ReactiveProperty<string> _response = new();
+            // リクエストの候補に追加する前に文章に任意の文字で修正する事が出来る。
+            Func<string, string> _requestPrefix;
+            // プレイヤーが送信もしくはゲームの状態を変換したリクエストの候補。
+            List<Message> _options = new();
+
+            public Content(Func<string, string> requestPrefix = null)
+            {
+                _requestPrefix = requestPrefix;
+            }
+
+            /// <summary>
+            /// AIにリクエストした文章
+            /// </summary>
+            public IReadOnlyReactiveProperty<string> Request => _request;
+            /// <summary>
+            /// AIからのレスポンスの文章
+            /// </summary>
+            public IReadOnlyReactiveProperty<string> Response => _response;
+
+            /// <summary>
+            /// リクエスト候補の追加
+            /// </summary>
+            public void AddOption(string text, int priority, Owner owner)
+            {
+                if (_requestPrefix != null) text = _requestPrefix(text);
+                _options.Add(new(text, priority, owner));
+            }
+
+            /// <summary>
+            /// 一番優先度が高いリクエストを取得し、メッセージの候補を全て削除する。
+            /// </summary>
+            public Message SelectTopPriorityOption()
+            {
+                Message m = _options.OrderByDescending(m => m).FirstOrDefault();
+                _options.Clear();
+
+                _request.Value = m != null ? m.Text : "";
+                return m;
+            }
+
+            /// <summary>
+            /// AIからのレスポンスをセット
+            /// </summary>
+            public void SetResponse(string text)
+            {
+                _response.Value = text;
+            }
+        }
+
+        readonly CharacterSettings _settings;
+        readonly ReactiveProperty<int> _mental;
+        readonly ReactiveProperty<int> _deltaMental = new();
+        readonly ReactiveCollection<string> _log = new();
+        readonly Content _characterAI;
+        readonly Content _gameRuleAI;
 
         public Talk(CharacterSettings settings)
         {
             _settings = settings;
-            _mental = settings.DefaultMental;
+            _mental = new(settings.DefaultMental);
+            _characterAI = new(FixByMental);
+            _gameRuleAI = new();
         }
 
-        /// <summary>
-        /// キャラクターの心情
-        /// </summary>
-        public int Mental
-        {
-            get => _mental;
-            set
-            {
-                _mental = value;
-                _mental = Mathf.Clamp(_mental, _settings.MinMental, _settings.MaxMental);
-            }
-        }
         /// <summary>
         /// キャラクター毎の設定
         /// </summary>
         public CharacterSettings Settings => _settings;
         /// <summary>
+        /// キャラクターの心情
+        /// </summary>
+        public IReadOnlyReactiveProperty<int> Mental => _mental;
+        /// <summary>
+        /// キャラクターの心情の変化量
+        /// </summary>
+        public IReadOnlyReactiveProperty<int> DeltaMental => _deltaMental;
+        /// <summary>
         /// 会話履歴
         /// </summary>
         public IReadOnlyReactiveCollection<string> Log => _log;
-        /// <summary>
-        /// AIにリクエストする文章
-        /// </summary>
-        public IReadOnlyReactiveProperty<string> AiRequest => _aiRequest;
-        /// <summary>
-        /// ゲームルールAIからのレスポンス
-        /// </summary>
-        public IReadOnlyReactiveProperty<string> GameRuleAiResponse => _gameRuleAiResponse;
-        /// <summary>
-        /// キャラクターAIからのレスポンス
-        /// </summary>
-        public IReadOnlyReactiveProperty<string> CharacterAiResponse => _characterAiResponse;
 
-        /// <summary>
-        /// AIにリクエストする用のメッセージを追加
-        /// </summary>
-        public void AddMessage(string text, int priority)
-        {
-            _messages.Add(new(text, priority));
-        }
-
-        /// <summary>
-        /// 優先度が最も高いメッセージを選択し、溜めたメッセージの中身を空にする。
-        /// </summary>
-        public Message SelectTopPriorityMessage()
-        {
-            Message m = _messages.OrderByDescending(m => m).FirstOrDefault();
-            _messages.Clear();
-
-            // 選択した文章を保持
-            if (m != null) _aiRequest.Value = m.Text;
-
-            return m;
-        }
+        public Content CharacterAI => _characterAI;
+        public Content GameRuleAI => _gameRuleAI;
 
         /// <summary>
         /// 会話履歴に台詞を追加
         /// </summary>
-        public void AddLog(string header, string line)
+        public void AddLog(string header, string text)
         {
-            _builder.Clear();
-            _builder.Append(header);
-            _builder.Append(line);
-            _log.Add(_builder.ToString());
+            _log.Add(header + text);
         }
 
         /// <summary>
-        /// ゲームルールAIからのレスポンスをセット
+        /// キャラクターの心情の値をセット
         /// </summary>
-        public void SetGameRuleAiResponse(string line)
+        public void SetMental(int value)
         {
-            _gameRuleAiResponse.Value = line;
+            _deltaMental.Value = value - _mental.Value;
+            _mental.Value = Mathf.Clamp(value, _settings.MinMental, _settings.MaxMental);
         }
 
-        /// <summary>
-        /// キャラクターAIからのレスポンスをセット
-        /// </summary>
-        public void SetCharacterAiResponse(string line)
+        // リクエストの候補として追加する前に心情によって口調が変わるように修正。
+        string FixByMental(string text)
         {
-            _characterAiResponse.Value = line;
+            // 心情が最大値の半分以下の場合は不機嫌になる。
+            if (_mental.Value < _settings.MaxMental / 2)
+            {
+                return "次の文章に不機嫌な態度で答えてください。" + text;
+            }
+
+            return text;
         }
     }
 }

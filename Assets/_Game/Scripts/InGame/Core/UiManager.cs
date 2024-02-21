@@ -20,6 +20,10 @@ namespace PSB.Game
         [SerializeField] GameObject _gameClear;
         [SerializeField] Text _gameClearText;
         [SerializeField] float _gameClearAnimationDuration = 1.0f;
+        [Header("ロード画面")]
+        [SerializeField] CanvasGroup _loading;
+        [SerializeField] Transform _loadingRing;
+        [SerializeField] float _loadingRingSpeed = 5.0f;
 
         GameState _gameState;
         // テキストの表示アニメーション用
@@ -47,6 +51,8 @@ namespace PSB.Game
         {
             _gameClear.SetActive(false);
             _gameClearText.text = "";
+
+            _loading.alpha = 0;
         }
 
         // フラグを監視して目標を更新する
@@ -113,6 +119,21 @@ namespace PSB.Game
             await UniTask.Yield(token);
             // GameClearの文字数が9文字
             await TextAnimationAsync(_gameClearText, duration / 9, "GameClear", token);
+        }
+
+        /// <summary>
+        /// ローディング画面
+        /// </summary>
+        public async UniTask LoadingAsync(CancellationToken token)
+        {
+            token.Register(() => _loading.alpha = 0);
+
+            _loading.alpha = 1.0f;
+            while (!token.IsCancellationRequested)
+            {
+                _loadingRing.Rotate(0, 0, _loadingRingSpeed);
+                await UniTask.Yield(token);
+            }
         }
     }
 }

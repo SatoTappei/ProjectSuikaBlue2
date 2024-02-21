@@ -32,6 +32,7 @@ namespace PSB.Game
         [SerializeField] float _lookSpeed = 1.0f;
         [Header("生成時設定")]
         [SerializeField] Vector2Int _spawnIndex;
+        [SerializeField] bool _randomSpawn;
         [Header("地面からの高さ")]
         [SerializeField] float _groundOffset;
         [Header("ギズモに描画")]
@@ -55,6 +56,15 @@ namespace PSB.Game
             _dungeonManager = dungeonManager;
         }
 
+        void Awake()
+        {
+            // ランダム生成フラグが立っている場合は初期化前に生成位置を変更しておく。
+            if (_randomSpawn && _dungeonManager != null)
+            {
+                _spawnIndex = Utility.RandomIndex(_dungeonManager.Size);
+            }
+        }
+
         void Start()
         {
             Init();
@@ -65,10 +75,6 @@ namespace PSB.Game
 
         void Init()
         {
-            // 検知範囲外にプレイヤーがいる場合に向くマズルの前方向
-            // プレイヤーの初期位置を向く
-            _lookAt = _defaultLookAt = _dungeonManager.GetStartCell().Position;
-
             // 二次関数から弾道のメッシュを作成
             _quad = Quad(_fireRange);
             _meshDrawer.Line(_quad, Vector3.left);
@@ -84,6 +90,12 @@ namespace PSB.Game
 
             // パーティクル用のオブジェクトプール
             _particlePool = new(_particle, _bulletCapacity);
+
+            if (_dungeonManager == null) return;
+
+            // 検知範囲外にプレイヤーがいる場合に向くマズルの前方向
+            // プレイヤーの初期位置を向く
+            _lookAt = _defaultLookAt = _dungeonManager.GetStartCell().Position;
 
             // 初期位置
             Vector3 v = _dungeonManager.GetCell(_spawnIndex).Position;
@@ -102,18 +114,28 @@ namespace PSB.Game
             }
         }
 
-        // 一定間隔で射撃。
+        // 検知中フラグが立っている場合、一定間隔で射撃。
         async UniTaskVoid FireAsync(CancellationToken token)
         {
+            if (_gameState != null)
+            {
+                // 準備完了のフラグが立つまで射撃しない。
+                await UniTask.WaitUntil(() => _gameState.IsInGameReady, cancellationToken: token);
+            }
+
             while (!token.IsCancellationRequested)
             {
-                // 検知中フラグが立っている場合
                 await UniTask.WaitUntil(() => _isDetecting, cancellationToken: token);
-
-                Fire();
-
+                if (RaycastToPlayer()) Fire();
                 await UniTask.WaitForSeconds(_fireRate, cancellationToken: token);
             }
+        }
+
+        // マズルの前方向にプレイヤーを検知するレイキャスト
+        bool RaycastToPlayer()
+        {
+            return Physics.Raycast(_muzzle.position, _muzzle.forward, out RaycastHit hit, _fireRange) &&
+                hit.collider.CompareTag(Const.PlayerTag);
         }
 
         // zy平面上に二次関数のグラフを新しく配列を作って返す。
@@ -159,6 +181,8 @@ namespace PSB.Game
         // ワールド座標とは別にグリッド上の位置を管理しているので必ずセットで扱う。
         void SetPosition(Vector3 position, Vector2Int index)
         {
+            if (_dungeonManager == null) return;
+
             // セルに登録しているキャラクター情報も更新
             _dungeonManager.SetCharacter(CharacterKey.Dummy, _currentIndex, null);
 
@@ -171,6 +195,8 @@ namespace PSB.Game
         // 射撃
         void Fire()
         {
+            AudioPlayer.Play(AudioKey.TurretFireSE, AudioPlayer.PlayMode.SE);
+
             // パーティクルは再生終了後に非アクティブになるので、戻す処理が必要ない。
             GameObject particle = _particlePool.Rent();
             if (particle != null)
@@ -197,8 +223,6 @@ namespace PSB.Game
         // ダメージ
         void IDamageReceiver.Damage()
         {
-            // ここで処理するのではなく、ダメージの内容をキューイングして任意のタイミングで処理した方が良い
-            Debug.Log(name + "がダメージを受けた");
         }
 
         void OnDrawGizmos()

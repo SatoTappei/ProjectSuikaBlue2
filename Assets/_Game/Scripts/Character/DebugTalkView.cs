@@ -9,10 +9,11 @@ namespace PSB.Game
 {
     public class DebugTalkView : MonoBehaviour
     {
-        [SerializeField] Text _aiRequestView;
-        [SerializeField] Text _gameRuleAiResponseView;
-        [SerializeField] Text _characterAiResponseView;
-        [SerializeField] Text _mental;
+        [SerializeField] Text _gameRuleAiRequest;
+        [SerializeField] Text _characterAiRequest;
+        [SerializeField] Text _gameRuleAiResponse;
+        [SerializeField] Text _characterAiResponse;
+        [SerializeField] Text _deltaMental;
 
         Talk _talk;
 
@@ -24,19 +25,29 @@ namespace PSB.Game
 
         void Start()
         {
-            _talk.AiRequest.Skip(1).Subscribe(s => 
+            _talk.GameRuleAI.Request.Subscribe(s => 
             {
-                _aiRequestView.text = $"リクエスト: {s}";
+                _gameRuleAiRequest.text = $"GameRuleRequest: {s}";
             }).AddTo(this);
 
-            _talk.GameRuleAiResponse.Skip(1).Subscribe(s =>
+            _talk.CharacterAI.Request.Subscribe(s =>
             {
-                _gameRuleAiResponseView.text = $"ゲームルールからのレスポンス: {s}";
+                _characterAiRequest.text = $"CharacterRequest: {s}";
             }).AddTo(this);
 
-            _talk.CharacterAiResponse.Skip(1).Subscribe(s => 
+            _talk.GameRuleAI.Response.Subscribe(s => 
             {
-                _characterAiResponseView.text = $"キャラクターからのレスポンス: {s}";
+                _gameRuleAiResponse.text = $"GameRuleResponse: {s}";
+            }).AddTo(this);
+
+            _talk.CharacterAI.Response.Subscribe(s =>
+            {
+                _characterAiResponse.text = $"CharacterResponse: {s}";
+            }).AddTo(this);
+
+            _talk.DeltaMental.Subscribe(s =>
+            {
+                _deltaMental.text = $"DeltaMental: {s}";
             }).AddTo(this);
         }
     }

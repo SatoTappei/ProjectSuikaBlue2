@@ -22,6 +22,7 @@ namespace PSB.Game
         Talk _talk;
         OpenAiRequest _gameRuleAi;
         OpenAiRequest _characterAi;
+        OpenAiRequest _contextJudgeAi;
 
         [Inject]
         void Construct(GameState gameState, Talk talk)
@@ -42,48 +43,69 @@ namespace PSB.Game
 
         void Init()
         {
-            // AIにリクエストするクラス
             _gameRuleAi = new(_gameRule.ToString());
             _characterAi = new(_character.ToString());
+            _contextJudgeAi = new(_contextJudge.ToString());
         }
 
         async UniTaskVoid UpdateAsync(CancellationToken token)
         {
+            // ゲームを通して流れる曲
+            AudioPlayer.Play(AudioKey.GameBGM, AudioPlayer.PlayMode.BGM);
+
             while (!token.IsCancellationRequested)
             {
-                // ゲームの状態を評価する。
-                Evaluate();
-
                 // プレイヤーの入力もしくはゲームの状態を解析した文章から優先度が最も高いものを選ぶ。
-                Talk.Message msg = _talk.SelectTopPriorityMessage();
-                if (msg == null || msg.Text == "")
+                Talk.Message reaction = _talk.CharacterAI.SelectTopPriorityOption();
+                Talk.Message nextAction = _talk.GameRuleAI.SelectTopPriorityOption();
+
+                if (reaction != null && reaction.Text != "")
                 {
-                    // 入力が無い場合は次のタイミングまで待つ。
-                    await UniTask.WaitForSeconds(_requestInterval, cancellationToken: token);
-                    continue;
+                    // キャラクターの台詞は投げっぱなし。
+                    CharacterLineAsync(reaction.Text).Forget();
+                    // 心情の変化も投げっぱなし。
+                    ContextJudgeAsync(reaction.Text).Forget();
                 }
 
-                // キャラクターの台詞は投げっぱなし。
-                CharacterLineAsync(msg.Text, token).Forget();
-                // AIによるキー入力を待つ。
-                await RequestNextKeyInputAsync(msg.Text, token);
-
+                if (nextAction != null && nextAction.Text != "")
+                {
+                    await RequestNextKeyInputAsync(nextAction.Text);
+                }
+                
                 await UniTask.WaitForSeconds(_requestInterval, cancellationToken: token);
             }
         }
 
         // キャラクター台詞をリクエスト。
-        async UniTask CharacterLineAsync(string text, CancellationToken token)
+        async UniTask CharacterLineAsync(string text)
         {
             string response = await _characterAi.RequestAsync(text);
-            _talk.SetCharacterAiResponse(response);
+            _talk.CharacterAI.SetResponse(response);
+            _talk.AddLog(_talk.Settings.LogHeader, response);
+        }
+
+        // 文脈から心情の変化を行う。
+        async UniTask ContextJudgeAsync(string text)
+        {
+            text = $"次の文章について、印象をルールに基づいて答えてください。'''{text}";
+
+            // 心情の変化量については文脈の判定ルールを記述したテキストファイルに書いてある。
+            string response = await _contextJudgeAi.RequestAsync(text);
+            if (int.TryParse(response, out int delta))
+            {
+                _talk.SetMental(_talk.Mental.Value + delta);
+            }
+            else
+            {
+                Debug.LogWarning($"心情の変化量にパース出来ない: {response}");
+            }
         }
 
         // ゲームのルールを基に次のキー入力をAIが決定し、メッセージを送信。
-        async UniTask RequestNextKeyInputAsync(string text, CancellationToken token)
+        async UniTask RequestNextKeyInputAsync(string text)
         {
             string response = await _gameRuleAi.RequestAsync(text);
-            _talk.SetGameRuleAiResponse(response);
+            _talk.GameRuleAI.SetResponse(response);
 
             // AIからのレスポンスを基にキー入力のメッセージを送信。
             // ゲームルールを記述したテキストファイルにAI側のレスポンスのルールが書いてある。
@@ -95,17 +117,6 @@ namespace PSB.Game
             else return; // どれにも該当しない場合は送信しない。
 
             MessageBroker.Default.Publish(msg);
-        }
-
-        // ゲームの状態を基にAIへのリクエストを作成。
-        void Evaluate()
-        {
-            string f = $"前に{_gameState.ForwardEvaluate}歩進むことが出来ます。";
-            string b = $"後ろに{_gameState.BackEvaluate}歩進むことが出来ます。";
-            string l = $"左を向くと{_gameState.LeftEvaluate}歩進める道があります。";
-            string r = $"右を向くと{_gameState.RightEvaluate}歩進める道があります。";
-
-            _talk.AddMessage(f + b + l + r + "どの方向に進みますか？", _talk.Mental);
         }
     }
 }

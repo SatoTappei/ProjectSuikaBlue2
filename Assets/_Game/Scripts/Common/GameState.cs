@@ -5,7 +5,8 @@ using UnityEngine;
 namespace PSB.Game
 {
     /// <summary>
-    /// InGame側が値を書き込み、Character側が読み取って次の判断をする。
+    /// ゲームの各種状態を持つ。
+    /// InGame側が値を読み書き、Character側は読み取って次の判断をする。
     /// </summary>
     public class GameState : IReadOnlyGameState
     {
@@ -18,6 +19,10 @@ namespace PSB.Game
         /// </summary>
         public Vector2Int PlayerIndex { get; set; }
         /// <summary>
+        /// インゲーム内でプレイヤーの操作が出来るようになった
+        /// </summary>
+        public bool IsInGameReady { get; set; }
+        /// <summary>
         /// 宝を入手済み
         /// </summary>
         public bool IsGetTreasure { get; set; }
@@ -25,6 +30,10 @@ namespace PSB.Game
         /// 入口にいる
         /// </summary>
         public bool IsStandingEntrance => PlayerIndex == StartIndex;
+        /// <summary>
+        /// インゲーム内でクリア条件を満たした
+        /// </summary>
+        public bool IsInGameClear { get; set; }
         /// <summary>
         /// 前方向へ移動の期待値
         /// </summary>
@@ -41,5 +50,9 @@ namespace PSB.Game
         /// 右方向へ移動の期待値
         /// </summary>
         public int RightEvaluate { get; set; }
+        /// <summary>
+        /// 最後にダメージを受けた時間
+        /// </summary>
+        public float LastDamagedTime { get; set; }
     }
 }

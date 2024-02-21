@@ -169,7 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rule: {fileID: 4900000, guid: 238b7aa5f6bf87c44afe3aad0e92cb0b, type: 3}
   _debugMap: {fileID: 4900000, guid: 6a18e17ca7e690b4db6d1ac3fb6099f4, type: 3}
-  _useDebugMap: 0
+  _useDebugMap: 1
   _data:
   - Letter: v
     Prefab: {fileID: 2633210245691238619, guid: fb79ee8b901026948bb2262f79138f7b,
@@ -198,6 +198,7 @@ MonoBehaviour:
   - Letter: M
     Prefab: {fileID: 8725382293417179696, guid: af4b65b607e5e2c40b9b251134391207,
       type: 3}
+  _list: []
 --- !u!1 &540369776
 GameObject:
   m_ObjectHideFlags: 0

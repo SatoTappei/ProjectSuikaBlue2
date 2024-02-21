@@ -11,7 +11,7 @@ namespace PSB.Game
     public class ChestAnimation : BillboardAnimation, ILocation
     {
         [SerializeField] GameObject _effect;
-        [SerializeField] UnityEngine.Collider _collider;
+        [SerializeField] Collider _collider;
         [SerializeField] Transform _cover;
         [Header("アニメーションの設定")]
         [SerializeField] float _openAngle;
@@ -50,6 +50,8 @@ namespace PSB.Game
             _isFirst = false;
 
             OpenAsync(this.GetCancellationTokenOnDestroy()).Forget();
+
+            AudioPlayer.Play(AudioKey.TreasureSE, AudioPlayer.PlayMode.SE);
         }
 
         // 蓋が開くアニメーション

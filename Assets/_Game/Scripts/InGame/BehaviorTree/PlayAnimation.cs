@@ -6,6 +6,7 @@ namespace PSB.Game.BT
 {
     /// <summary>
     /// アニメーションの再生を行うアクションノード。
+    /// 再生から任意の時間経過後に成功を返す。
     /// </summary>
     public class PlayAnimation : Node
     {

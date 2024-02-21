@@ -71,6 +71,10 @@ namespace PSB.Game
         WalkStepSE, // 歩く
         DoorOpenSE, // ドア開く
         DoorCloseSE, // ドア閉じる
+        KickDamageSE, // 蹴りを喰らった
+        TurretFireSE, // タレットが射撃
+        GameBGM, // ゲームを通して流れる
+        TreasureSE, // 宝箱獲得
     }
 
     /// <summary>

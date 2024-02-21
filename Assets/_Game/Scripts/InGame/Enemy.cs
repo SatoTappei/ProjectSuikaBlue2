@@ -40,6 +40,7 @@ namespace PSB.Game
         [Header("生成時設定")]
         [SerializeField] Vector2Int _spawnIndex;
         [SerializeField] Direction _spawnDirection;
+        [SerializeField] bool _randomSpawn;
         [Header("地面からの高さ")]
         [SerializeField] float _groundOffset;
         [Header("水平にレイキャストする際に使う眼の高さ")]
@@ -74,6 +75,12 @@ namespace PSB.Game
             _gameState = gameState;
             _dungeonManager = dungeonManager;
             _blackBoard = blackBoard;
+        }
+
+        void Awake()
+        {
+            // ランダム生成フラグが立っている場合は初期化前に生成位置を変更しておく。
+            if (_randomSpawn) _spawnIndex = Utility.RandomIndex(_dungeonManager.Size);
         }
 
         void Start()
@@ -125,10 +132,15 @@ namespace PSB.Game
             // 任意のステートから開始
             State state = _states[_defaultState];
 
+            // 準備完了のフラグが立つまで動かない。
+            await UniTask.WaitUntil(() => _gameState.IsInGameReady, cancellationToken: token);
+
             while (!token.IsCancellationRequested)
             {
+                // ゲームのクリア条件を満たしていた場合は弾く
+                if (_gameState.IsInGameClear) { await UniTask.Yield(token); continue; }
+
                 state = state.Update();
-                Debug.Log(state.ToString());
 
                 await UniTask.Yield(token);
             }
@@ -234,6 +246,31 @@ namespace PSB.Game
         }
 
         /// <summary>
+        /// キャラクターのモデルをプレイヤーの方向に線形補完を用いて1フレーム分回転させる。
+        /// 前方向を示す値もその方向になる。
+        /// </summary>
+        public void RotateToPlayer(float t)
+        {
+            Direction target = _forward;
+            // 上下左右にプレイヤーがいる場合は向く方向を更新
+            foreach (Vector2Int v in Index())
+            {
+                IReadOnlyCell c = _dungeonManager.GetCell(_currentIndex + v);
+                if (c.CharacterKey == CharacterKey.Player) { target = v.ToDirection(); break; }
+            }
+
+            Rotate(target, t);
+
+            IEnumerable<Vector2Int> Index()
+            {
+                yield return Vector2Int.up;
+                yield return Vector2Int.down;
+                yield return Vector2Int.left;
+                yield return Vector2Int.right;
+            }
+        }
+
+        /// <summary>
         /// アニメーションを再生
         /// </summary>
         public void PlayAnimation(AnimationKey key)
@@ -257,25 +294,22 @@ namespace PSB.Game
         }
 
         /// <summary>
-        /// セルに自分以外のキャラクターが存在するかを調べる。
+        /// セルにプレイヤーが存在するかを調べる。
         /// </summary>
-        public bool IsExistOtherCharacter(Vector2Int index)
+        public bool IsExistPlayer(Vector2Int index)
         {
             IReadOnlyCell cell = _dungeonManager.GetCell(index);
 
             // キャラクターがいない場合
             if (cell.Character == null) return false;
-            // 自分以外のキャラクターかどうか
-            return cell.Character != (ICharacter)this;
+            return cell.CharacterKey == CharacterKey.Player;
         }
 
         /// <summary>
         /// パーティクルを再生
         /// </summary>
-        public void PlayParticle(ParticleKey _) 
+        public void PlayParticle(ParticleKey _)　// 現状パーティクルが1つなので引数の必要ないが一応。
         {
-            // 現状パーティクルが1つなので引数の必要ないが一応。
-
             // パーティクルは再生終了後に非アクティブになるので、戻す処理が必要ない。
             GameObject p = _particlePool.Rent();
             if (p != null)
@@ -288,8 +322,6 @@ namespace PSB.Game
         // ダメージ
         void IDamageReceiver.Damage()
         {
-            // ここで処理するのではなく、ダメージの内容をキューイングして任意のタイミングで処理した方が良い
-            Debug.Log(name + "がダメージを受けた");
         }
     }
 }

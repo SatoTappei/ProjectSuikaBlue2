@@ -46,7 +46,7 @@ namespace PSB.Game
         {
             _fullModeText.text = "";
             _simpleModeText.text = "";
-            _talk.CharacterAiResponse.Skip(1).Subscribe(Print);
+            _talk.CharacterAI.Response.Skip(1).Subscribe(Print);
             _changeButton.onClick.AddListener(Switch);
             StateChange(_isFull);
             // キャラクターを触ったら喋る

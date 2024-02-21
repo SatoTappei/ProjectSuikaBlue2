@@ -13,6 +13,7 @@ namespace PSB.Game.BT
     {
         readonly float _moveSpeed;
         readonly float _rotSpeed;
+        readonly int _detectDistance;
         readonly Enemy _self;
 
         int _next;
@@ -22,11 +23,12 @@ namespace PSB.Game.BT
         Vector2Int _indexTo;
         Vector2Int _rotateTo;
 
-        public PathFollowedMove(float moveSpeed, float rotSpeed, Enemy self, 
+        public PathFollowedMove(float moveSpeed, float rotSpeed, int detectDistance, Enemy self, 
             string name = nameof(Sequence)) : base(name)
         {
             _moveSpeed = moveSpeed;
             _rotSpeed = rotSpeed;
+            _detectDistance = detectDistance;
             _self = self;
         }
 
@@ -64,8 +66,11 @@ namespace PSB.Game.BT
                 // ベクトル同士で方向を求めるのと同じ手法で、上下左右を表す単位ベクトルを求める。
                 _rotateTo = _indexTo - _self.GetPosition().index;
 
-                // 次のセルが既にキャラクターがいる場合はこれ以上進めない。
-                if (_self.IsExistOtherCharacter(_indexTo)) return State.Success;
+                // 次のセルが既にプレイヤーがいる場合はこれ以上進めない。
+                if (_self.IsExistPlayer(_indexTo)) return State.Success;
+
+                // プレイヤーを検知した場合は打ち切る。
+                if (_self.DetectPlayer(_detectDistance, checkWithinSight: true)) return State.Success;
             }
             else
             {

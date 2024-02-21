@@ -28,8 +28,8 @@ namespace PSB.Game.FSM
             _sequence = new(nameof(Sequence),
                 new Pathfinding(_self),
                 new PlayAnimation(_self, Enemy.AnimationKey.Sprint, 0),
-                new PlayParticle(_self, Enemy.ParticleKey.Dash, _particleInterval, 
-                    new PathFollowedMove(_moveSpeed, _rotSpeed, _self)));
+                new PlayParticle(_self, Enemy.ParticleKey.Dash, _particleInterval,
+                    new PathFollowedMove(_moveSpeed, _rotSpeed, 0, _self)));
         }
 
         protected override void Enter()

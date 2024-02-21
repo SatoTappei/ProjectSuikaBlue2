@@ -2904,6 +2904,7 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects:
   - {fileID: 1796262591}
+  - {fileID: 5565020614573460679}
   _characterSettings: {fileID: 11400000, guid: 2ad74465df63b4b4fb215b3695aa5b12, type: 2}
 --- !u!1001 &1628567734
 PrefabInstance:
@@ -3126,7 +3127,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1796262591}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df0726ede39fdff4a93609fc9d5848a3, type: 3}
   m_Name: 
@@ -3709,7 +3710,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 1a7c88768201627488e85146641a92eb, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -4329,10 +4330,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 1112552552640680667}
-  _idleAnim: Idle
-  _angryAnim: Angry
-  _funAnim: Fun
-  _orderAnim: Order
+  _idleAnimName: Idle
+  _angryAnimName: Angry
+  _funAnimName: Fun
+  _orderAnimName: Order
 --- !u!1001 &6584577355496169837
 PrefabInstance:
   m_ObjectHideFlags: 0

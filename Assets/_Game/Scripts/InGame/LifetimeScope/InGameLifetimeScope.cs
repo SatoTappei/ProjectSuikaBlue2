@@ -1,7 +1,6 @@
 using VContainer;
 using VContainer.Unity;
 using UnityEngine;
-using PSB.Architect;
 using PSB.Game.BT;
 
 namespace PSB.Game

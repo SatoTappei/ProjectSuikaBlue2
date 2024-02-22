@@ -1,26 +1,26 @@
 # コマンド名の先頭に+を付けると、1つ上のコマンドに続けて実行される。
 
 Sequence: 
-- LineName: たかし
-  Line: ほんげほんげぎんえぴああああああああああああああああああああ
+- LineName: 男の子
+  Line: シーン2です。こんにちは。
   Commands: 
   - キャラ表示 中央 たかし 1.0
 
-- LineName: たかしこ
-  Line: ゆんやーっゆんやーっゆんやーっゆんやーっ
+- LineName: 女の子
+  Line: こんにちは。
   Commands: 
   - キャラ消去 中央 0
   - キャラ表示 左 たかし 0
   - キャラ下げ 左 0
   - キャラ表示 右 たかしこ 1.0
 
-- LineName: たかし
-  Line: やんゆーっやんゆーっやんゆーっやんゆーっ
+- LineName: 男の子
+  Line: あいうえおかきくけこさしすせそたちつてとなにぬねの、。！？abcdefg
   Commands: 
   - キャラ上げ 左 0
   - キャラ下げ 右 0
 
-- LineName: らんポーク
+- LineName: 豚
   Line: らんらん♪
   Commands: 
   - キャラ下げ 左 0
@@ -28,10 +28,10 @@ Sequence:
   - +キャラジャンプ 中央 1.0 10
 
 - LineName: 
-  Line: 出荷よー
+  Line: ナレーションです。
   Commands: 
 
-- LineName: らんポーク
-  Line: そんなー
+- LineName: 豚
+  Line: シーン終了。
   Commands: 
   - キャラ消去 中央 1.0

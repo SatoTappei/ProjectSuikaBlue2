@@ -62,7 +62,7 @@ namespace PSB.Game
                 _camera.forward = _follow.forward;
                 _camera.localEulerAngles += _shakeAngle;
 
-                await UniTask.Yield(PlayerLoopTiming.LastUpdate);
+                await UniTask.Yield(PlayerLoopTiming.LastUpdate, cancellationToken: token);
             }
         }
 
